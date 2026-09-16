@@ -1,14 +1,14 @@
 === AumLang – AI Multilingual Translation & SEO ===
 Contributors: aumcreate
-Tags: multilingual, translation, multilanguage, hreflang, woocommerce
+Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Builder-friendly, SEO-complete AI multilingual translation. One-click page translation that preserves your Elementor and Gutenberg layouts.
+AI translation for Elementor, Gutenberg and WooCommerce that keeps layouts intact, with per-language URLs, hreflang, canonicals and sitemaps handled.
 
 == Description ==
 
@@ -91,6 +91,10 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.11 =
+* Tags and summary now name what people search for. No functional change to the plugin.
+* A line at the foot of the settings screen linking to the rest of the AumCreate ecosystem.
 
 = 1.0.10 =
 * Renamed for the plugin directory: the listing title now says what the plugin does. No functional change.

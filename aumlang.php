@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       AumLang – AI Multilingual Translation & SEO
  * Description:        Builder-friendly, SEO-complete multilingual translation for WordPress. By AumCreate.
- * Version:           1.0.10
+ * Version:           1.0.11
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            AumCreate
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * Constants.
  * -------------------------------------------------------------------------
  */
-define( 'AUMLANG_VERSION', '1.0.10' );
+define( 'AUMLANG_VERSION', '1.0.11' );
 define( 'AUMLANG_DB_VERSION', '3' );
 define( 'AUMLANG_FILE', __FILE__ );
 define( 'AUMLANG_DIR', plugin_dir_path( __FILE__ ) );
