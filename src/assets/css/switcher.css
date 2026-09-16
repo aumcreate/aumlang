@@ -1,0 +1,153 @@
+/* AumLang front-end language switcher. */
+.aml-lang-switcher {
+	list-style: none;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.35em 0.75em;
+	margin: 0;
+	padding: 0;
+	align-items: center;
+}
+
+.aml-lang-switcher .aml-lang-item {
+	margin: 0;
+	line-height: 1.4;
+}
+
+.aml-lang-switcher a {
+	text-decoration: none;
+	opacity: 0.85;
+}
+
+.aml-lang-switcher a:hover {
+	opacity: 1;
+	text-decoration: underline;
+}
+
+.aml-lang-switcher .is-current > span {
+	font-weight: 600;
+	opacity: 1;
+}
+
+/* Floating switcher. */
+.aml-lang-floating {
+	position: fixed;
+	z-index: 9990;
+	background: #fff;
+	padding: 7px 12px;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+	font-size: 14px;
+}
+
+.aml-pos-top-left { top: 16px; left: 16px; }
+.aml-pos-top-right { top: 16px; right: 16px; }
+.aml-pos-bottom-left { bottom: 16px; left: 16px; }
+.aml-pos-bottom-right { bottom: 16px; right: 16px; }
+
+/* Dropdown switcher (current language + folded menu). */
+.aml-lang-dropdown { position: relative; display: inline-block; }
+
+.aml-lang-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	background: none;
+	border: 0;
+	padding: 2px 4px;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+
+.aml-lang-caret {
+	width: 0;
+	height: 0;
+	border: 4px solid transparent;
+	border-top-color: currentColor;
+	transform: translateY(2px);
+}
+
+.aml-lang-menu {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	min-width: 130px;
+	max-height: 60vh;
+	overflow: auto;
+	margin: 6px 0 0;
+	padding: 4px 0;
+	list-style: none;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+	display: none;
+	z-index: 10000;
+}
+
+.aml-lang-dropdown.open .aml-lang-menu { display: block; }
+
+.aml-pos-bottom-left .aml-lang-menu,
+.aml-pos-bottom-right .aml-lang-menu {
+	top: auto;
+	bottom: 100%;
+	margin: 0 0 6px;
+}
+
+.aml-pos-top-left .aml-lang-menu,
+.aml-pos-bottom-left .aml-lang-menu { right: auto; left: 0; }
+
+.aml-lang-menu li { margin: 0; }
+
+.aml-lang-menu a {
+	display: block;
+	padding: 6px 14px;
+	text-decoration: none;
+	white-space: nowrap;
+	color: inherit;
+}
+
+.aml-lang-menu a:hover { background: rgba(0, 0, 0, 0.06); }
+
+
+/*
+ * Flags. Sized in em so a flag stays in proportion with the label beside it
+ * whatever type scale the theme is using — the switcher is dropped into
+ * headers, footers and menus that agree about nothing.
+ */
+.aml-flag {
+	display: inline-block;
+	width: 1.35em;
+	line-height: 1;
+	vertical-align: -0.15em;
+}
+
+.aml-flag img {
+	display: block;
+	width: 100%;
+	height: auto;
+	/* The corner is what stops a flag on a light ground from reading as a raw rectangle. */
+	border-radius: 2px;
+}
+
+.aml-flag + .aml-lang-text { margin-left: 0.4em; }
+
+/*
+ * `show: flag` hides the language name rather than dropping it — a flag is a
+ * country, not a language, and alone it announces nothing. Themes usually
+ * define .screen-reader-text, but not all do, so carry our own copy.
+ */
+.aml-lang-switcher .screen-reader-text,
+.aml-lang-dropdown .screen-reader-text,
+.aml-lang-menu-item .screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}

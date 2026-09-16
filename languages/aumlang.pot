@@ -1,0 +1,877 @@
+# Copyright (C) 2026 AumCreate
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: AumLang 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aumlang\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-20T08:03:35+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: aumlang\n"
+
+#. Plugin Name of the plugin
+#: aumlang.php
+#: src/Admin/AdminMenu.php:136
+#: src/Admin/AdminMenu.php:147
+#: src/Admin/AdminMenu.php:148
+#: src/Admin/AdminMenu.php:224
+msgid "AumLang"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: aumlang.php
+msgid "https://aumcreate.com/aumlang"
+msgstr ""
+
+#. Description of the plugin
+#: aumlang.php
+msgid "Builder-friendly, SEO-complete multilingual translation for WordPress. By AumCreate."
+msgstr ""
+
+#. Author of the plugin
+#: aumlang.php
+msgid "AumCreate"
+msgstr ""
+
+#. Author URI of the plugin
+#: aumlang.php
+msgid "https://aumcreate.com"
+msgstr ""
+
+#: src/Admin/AdminColumns.php:103
+#: src/Admin/TermAdminColumns.php:131
+msgid "Translations"
+msgstr ""
+
+#. translators: 1: language code, 2: link to the original.
+#: src/Admin/AdminColumns.php:188
+#: src/Admin/TermAdminColumns.php:220
+#, php-format
+msgid "%1$s translation of %2$s"
+msgstr ""
+
+#: src/Admin/AdminColumns.php:208
+#: src/Admin/TermAdminColumns.php:289
+msgid "Machine translated"
+msgstr ""
+
+#: src/Admin/AdminColumns.php:210
+#: src/Admin/MetaBox.php:271
+#: src/Admin/ReviewPage.php:147
+#: src/Admin/ReviewPage.php:235
+#: src/Admin/TermAdminColumns.php:291
+msgid "Reviewed"
+msgstr ""
+
+#: src/Admin/AdminColumns.php:212
+#: src/Admin/TermAdminColumns.php:293
+msgid "Outdated — source changed"
+msgstr ""
+
+#: src/Admin/AdminColumns.php:214
+#: src/Admin/MetaBox.php:275
+#: src/Admin/ReviewPage.php:241
+msgid "Not translated"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:137
+#: src/Admin/GlossaryPage.php:183
+#: src/Admin/GlossaryPage.php:223
+#: src/Admin/ReviewPage.php:173
+#: src/Admin/StringsPage.php:340
+msgid "Translation"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:164
+#: src/assets/js/switcher-block.js:36
+msgid "Settings"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:165
+msgid "Switcher"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:166
+msgid "Strings"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:167
+msgid "Glossary"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:168
+msgid "Review"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:169
+#: src/Admin/LicensePage.php:126
+msgid "License"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:227
+msgid "Builder-friendly, SEO-complete multilingual translation."
+msgstr ""
+
+#: src/Admin/AdminMenu.php:232
+msgid "AumLang sections"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:238
+msgid "Activate AumLang to unlock this section."
+msgstr ""
+
+#: src/Admin/AdminMenu.php:314
+msgid "Testing…"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:315
+msgid "Request failed."
+msgstr ""
+
+#: src/Admin/AdminMenu.php:341
+msgid "AumLang needs pretty permalinks for language URLs like /zh/ to work. Plain permalinks are currently active."
+msgstr ""
+
+#: src/Admin/AdminMenu.php:343
+msgid "Change permalink settings"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:155
+msgid "Pin how key terms are translated, so AI output stays consistent and on-brand."
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:158
+msgid "Term added."
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:160
+msgid "Term removed."
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:162
+msgid "Please enter both a source term and a translation."
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:166
+msgid "Add a term"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:170
+#: src/Admin/GlossaryPage.php:221
+msgid "Source term"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:171
+msgid "e.g. post"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:174
+#: src/Admin/GlossaryPage.php:222
+#: src/Admin/ReviewPage.php:174
+msgid "Language"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:176
+#: src/Admin/GlossaryPage.php:235
+#: src/Admin/ReviewPage.php:137
+msgid "All languages"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:184
+msgid "e.g. 文章"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:191
+msgid "Case sensitive"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:193
+msgid "Add term"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:198
+msgid "Terms"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:214
+msgid "No terms yet. Add one above to lock its translation."
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:224
+msgid "Case"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:225
+#: src/Admin/StringsPage.php:341
+msgid "Actions"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:240
+msgid "Yes"
+msgstr ""
+
+#: src/Admin/GlossaryPage.php:242
+msgid "Delete term"
+msgstr ""
+
+#: src/Admin/LicensePage.php:94
+msgid "AumLang is locked until you activate it. Enter your license to unlock all sections."
+msgstr ""
+
+#: src/Admin/LicensePage.php:96
+msgid "Activate AumLang"
+msgstr ""
+
+#: src/Admin/LicensePage.php:117
+msgid "Activate AumLang on this domain. Bundled with the AumCreate theme? It activates automatically."
+msgstr ""
+
+#: src/Admin/LicensePage.php:120
+msgid "License activated."
+msgstr ""
+
+#: src/Admin/LicensePage.php:122
+msgid "That license code is not valid for this domain."
+msgstr ""
+
+#: src/Admin/LicensePage.php:130
+msgid "Activated via the AumCreate theme"
+msgstr ""
+
+#: src/Admin/LicensePage.php:131
+msgid "AumLang is covered by your AumCreate theme license — no separate code needed. To use AumLang on a site without the AumCreate theme, enter a standalone license below."
+msgstr ""
+
+#: src/Admin/LicensePage.php:133
+msgid "Active"
+msgstr ""
+
+#: src/Admin/LicensePage.php:135
+msgid "Not activated"
+msgstr ""
+
+#: src/Admin/LicensePage.php:145
+msgid "License code"
+msgstr ""
+
+#: src/Admin/LicensePage.php:148
+msgid "Paste your AumLang license code"
+msgstr ""
+
+#. translators: %s: the site's root domain.
+#: src/Admin/LicensePage.php:153
+#, php-format
+msgid "The license is bound to this domain: %s"
+msgstr ""
+
+#: src/Admin/LicensePage.php:160
+msgid "Verify & activate"
+msgstr ""
+
+#: src/Admin/LicensePage.php:177
+msgid "This code is for a different domain."
+msgstr ""
+
+#: src/Admin/LicensePage.php:179
+msgid "This code is not an AumLang license."
+msgstr ""
+
+#: src/Admin/LicensePage.php:181
+msgid "This license has expired."
+msgstr ""
+
+#: src/Admin/LicensePage.php:185
+msgid "This license code is not valid."
+msgstr ""
+
+#: src/Admin/LicensePage.php:187
+msgid "This server is missing the libsodium extension needed to verify licenses."
+msgstr ""
+
+#: src/Admin/LicensePage.php:189
+msgid "Could not verify the license code."
+msgstr ""
+
+#: src/Admin/MetaBox.php:105
+msgid "AumLang Translations"
+msgstr ""
+
+#: src/Admin/MetaBox.php:151
+#: src/Admin/StringsPage.php:207
+#: src/Admin/TermAdminColumns.php:118
+msgid "Translating…"
+msgstr ""
+
+#: src/Admin/MetaBox.php:152
+msgid "Translation failed: "
+msgstr ""
+
+#: src/Admin/MetaBox.php:174
+#: src/Admin/StringsPage.php:403
+msgid "No translation provider is configured."
+msgstr ""
+
+#: src/Admin/MetaBox.php:176
+msgid "Open settings"
+msgstr ""
+
+#: src/Admin/MetaBox.php:211
+#: src/Admin/TermAdminColumns.php:194
+msgid "Translate"
+msgstr ""
+
+#: src/Admin/MetaBox.php:212
+msgid "Update"
+msgstr ""
+
+#: src/Admin/MetaBox.php:212
+#: src/Admin/MetaBox.php:307
+msgid "Re-translate"
+msgstr ""
+
+#: src/Admin/MetaBox.php:225
+msgid "Edit"
+msgstr ""
+
+#. translators: %s: language code.
+#: src/Admin/MetaBox.php:246
+#, php-format
+msgid "This is the %s translation."
+msgstr ""
+
+#: src/Admin/MetaBox.php:255
+msgid "Edit the original"
+msgstr ""
+
+#: src/Admin/MetaBox.php:269
+#: src/Admin/ReviewPage.php:146
+#: src/Admin/ReviewPage.php:239
+msgid "Machine"
+msgstr ""
+
+#: src/Admin/MetaBox.php:273
+#: src/Admin/ReviewPage.php:148
+#: src/Admin/ReviewPage.php:237
+msgid "Outdated"
+msgstr ""
+
+#: src/Admin/MetaBox.php:291
+#: src/Admin/SettingsPage.php:191
+#: src/Admin/SettingsPage.php:283
+#: src/Admin/StringsPage.php:396
+#: src/Admin/TermAdminColumns.php:240
+msgid "Permission denied."
+msgstr ""
+
+#: src/Admin/ReviewPage.php:117
+msgid "Proofread machine translations and mark them as reviewed."
+msgstr ""
+
+#. translators: %d: number of translations marked reviewed.
+#: src/Admin/ReviewPage.php:124
+#, php-format
+msgid "Marked %d translation(s) as reviewed."
+msgstr ""
+
+#: src/Admin/ReviewPage.php:145
+msgid "All statuses"
+msgstr ""
+
+#: src/Admin/ReviewPage.php:165
+msgid "Mark selected as reviewed"
+msgstr ""
+
+#: src/Admin/ReviewPage.php:172
+msgid "Original"
+msgstr ""
+
+#: src/Admin/ReviewPage.php:175
+msgid "Status"
+msgstr ""
+
+#: src/Admin/ReviewPage.php:180
+msgid "No translations match this filter."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:176
+msgid "Settings saved."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:211
+msgid "Enter an API key first."
+msgstr ""
+
+#. translators: %s: the translated sample word.
+#: src/Admin/SettingsPage.php:220
+#, php-format
+msgid "Connection OK — \"Hello\" translated to \"%s\"."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:240
+msgid "Affordable and broadly reachable — a good default to start with."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:247
+msgid "High quality, but some servers cannot reach it — you may need a server in another region or a relay."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:254
+msgid "An alternative provider that is reachable when others are not."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:261
+msgid "One key, many models (GPT, Claude, Gemini…). Handy if you want to switch models."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:264
+msgid "Custom (relay / proxy)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:268
+msgid "Enter an OpenAI-compatible relay URL + its key — use this for Claude, Gemini, or any proxy service."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: src/Admin/SettingsPage.php:319
+#, php-format
+msgid "reachable (HTTP %d)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:337
+msgid "Please choose a language to add."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:357
+msgid "Language added."
+msgstr ""
+
+#. translators: 1: core yes/no, 2: theme pack count, 3: plugin pack count.
+#: src/Admin/SettingsPage.php:370
+#, php-format
+msgid "Language packs installed — core: %1$s, themes: %2$d, plugins: %3$d. Remaining untranslated UI strings can be filled in under Strings."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:371
+msgid "yes"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:371
+msgid "no"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:396
+#: src/Routing/LanguageSwitcher.php:172
+msgid "Languages"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:405
+msgid "Translatable content"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:406
+msgid "Choose which content types AumLang translates. Anything turned off stays in the original language."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:408
+msgid "Post types"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:424
+msgid "Taxonomies"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:440
+msgid "Custom fields"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:441
+msgid "ACF fields are translated automatically by type. For other raw custom fields (theme/plugin post meta), list the meta keys to translate here — one per line. Only add keys whose value is text."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:454
+msgid "Translation provider"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:457
+msgid "Provider"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:467
+msgid "API key"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:469
+msgid "Saved — leave blank to keep"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:469
+msgid "Enter your API key"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:472
+msgid "API endpoint (Base URL)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:477
+msgid "Model"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:483
+msgid "Pick a provider to auto-fill its endpoint and model, or choose Custom for a relay/proxy. Any OpenAI-compatible API works."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:484
+msgid "New to API keys? Where to get one"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:488
+msgid "An API key lets AumLang call an AI to translate. You pay the AI provider directly — AumLang never charges per translation. Steps: choose a provider below, create a key on its website, paste it into the API key box above, then click Test connection."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:494
+msgid "Get API key"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:501
+msgid "Why do Claude / Gemini use the Custom option?"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:502
+msgid "Claude (Anthropic) and Gemini (Google) use a different API format than OpenAI, and AumLang's engine speaks the OpenAI-compatible format. To use them, pick Custom and enter a relay URL that exposes them in OpenAI format — many relay services and OpenRouter do exactly that."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:507
+msgid "Test connection"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:508
+msgid "Test reachability of all providers"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:512
+msgid "Before buying API credits, run \"Test reachability\" — a server (e.g. in mainland China) often cannot reach OpenAI but can reach DeepSeek. \"Test connection\" then verifies your key against the selected provider."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:513
+msgid "Your key is stored in your site database and used to call the provider directly."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:517
+msgid "General"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:523
+msgid "Add a language prefix to the default language (e.g. /en/)."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:530
+msgid "Delete all AumLang data when the plugin is deleted."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:535
+#: src/Admin/SwitcherPage.php:148
+msgid "Save settings"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:549
+msgid "Saved."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:570
+msgid "No languages yet."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:584
+msgid "Default"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:586
+msgid "Make default"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:587
+msgid "Remove language"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:607
+msgid "All available languages have been added."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:614
+msgid "Add a language…"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:621
+msgid "Add"
+msgstr ""
+
+#: src/Admin/StringsPage.php:208
+msgid "Done."
+msgstr ""
+
+#: src/Admin/StringsPage.php:209
+msgid "Saved"
+msgstr ""
+
+#: src/Admin/StringsPage.php:210
+msgid "Delete the selected string(s)?"
+msgstr ""
+
+#: src/Admin/StringsPage.php:231
+msgid "Translate theme & plugin interface text captured from your front end."
+msgstr ""
+
+#: src/Admin/StringsPage.php:236
+msgid "Discovery mode"
+msgstr ""
+
+#: src/Admin/StringsPage.php:240
+msgid "On — browse your front end in a non-default language to collect the strings it actually displays, then turn it off."
+msgstr ""
+
+#: src/Admin/StringsPage.php:241
+msgid "Off. Turn it on, browse your front end to collect visible strings, then turn it off."
+msgstr ""
+
+#. translators: %d: number of strings imported.
+#: src/Admin/StringsPage.php:259
+#, php-format
+msgid "Imported %d strings from .pot files."
+msgstr ""
+
+#: src/Admin/StringsPage.php:267
+msgid "Add a non-default language first."
+msgstr ""
+
+#: src/Admin/StringsPage.php:287
+msgid "Search strings"
+msgstr ""
+
+#: src/Admin/StringsPage.php:288
+msgid "Search"
+msgstr ""
+
+#. translators: %d: number of untranslated strings.
+#: src/Admin/StringsPage.php:296
+#, php-format
+msgid "AI-translate all untranslated (%d)"
+msgstr ""
+
+#: src/Admin/StringsPage.php:304
+msgid "Import all from .pot"
+msgstr ""
+
+#: src/Admin/StringsPage.php:331
+msgid "Delete selected"
+msgstr ""
+
+#: src/Admin/StringsPage.php:339
+msgid "Source"
+msgstr ""
+
+#: src/Admin/StringsPage.php:346
+msgid "No strings yet — turn on discovery mode and browse the front end in this language to capture them, or import from .pot."
+msgstr ""
+
+#: src/Admin/StringsPage.php:357
+msgid "Delete"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:81
+msgid "Switcher settings saved."
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:86
+msgid "AumCreate theme detected"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:87
+msgid "Your theme has a built-in header toolbar switcher. To use it: edit your header, select the AumCreate Toolbar widget, then under Language Switcher set Switch Mode to “AumLang”. (Then you can leave the options below off to avoid a duplicate switcher.)"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:95
+#: src/assets/js/switcher-block.js:38
+msgid "Display"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:99
+msgid "Label style"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:101
+msgid "Language name (中文)"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:102
+msgid "Code (ZH)"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:103
+#: src/Routing/SwitcherWidget.php:78
+#: src/assets/js/switcher-block.js:43
+msgid "Name + code"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:107
+msgid "Add to menu location"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:109
+msgid "— None —"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:116
+msgid "Menu parent label"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:117
+msgid "Current language (e.g. 中文)"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:120
+msgid "In a menu, AumLang adds one parent item with the languages as a dropdown submenu. Leave the label blank to use the current language as the parent (e.g. 中文 ▾), or type a fixed label like “Languages”."
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:122
+msgid "Floating switcher"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:128
+msgid "Show a floating switcher overlaid on every front-end page"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:131
+msgid "Floating position"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:135
+msgid "Top left"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:136
+msgid "Top right"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:137
+msgid "Bottom left"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:138
+msgid "Bottom right"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:154
+msgid "Place it manually"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:155
+msgid "Prefer to place the switcher yourself (e.g. in an Elementor header, a sidebar, or a template)? Use any of these:"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:157
+msgid "Shortcode"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:158
+msgid "Shortcode (options)"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:159
+msgid "Block"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:159
+msgid "Search for “Language Switcher” in the block inserter."
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:160
+msgid "Widget"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:160
+msgid "“AumLang Language Switcher” under Appearance → Widgets."
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:161
+msgid "Template tag"
+msgstr ""
+
+#: src/Admin/TermAdminColumns.php:119
+msgid "Failed"
+msgstr ""
+
+#: src/Admin/TermAdminColumns.php:248
+msgid "Invalid request."
+msgstr ""
+
+#: src/Admin/TermAdminColumns.php:254
+msgid "Translation failed — check the provider settings."
+msgstr ""
+
+#: src/Admin/TermAdminColumns.php:295
+msgid "Not translated — click to translate"
+msgstr ""
+
+#: src/Language/LanguagePackInstaller.php:46
+msgid "Translation install API is unavailable."
+msgstr ""
+
+#: src/Language/LanguageRegistry.php:123
+msgid "A language code is required."
+msgstr ""
+
+#: src/Language/LanguageRegistry.php:130
+msgid "The language code format is invalid."
+msgstr ""
+
+#: src/Language/LanguageRegistry.php:190
+msgid "The default language cannot be removed. Set another default first."
+msgstr ""
+
+#: src/Language/LanguageRegistry.php:222
+msgid "Cannot set an unregistered language as default."
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:24
+msgid "AumLang Language Switcher"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:25
+#: src/assets/js/switcher-block.js:18
+msgid "Links to the current page in each language."
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:70
+msgid "Title:"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:74
+msgid "Display:"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:76
+#: src/assets/js/switcher-block.js:41
+msgid "Name"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:77
+#: src/assets/js/switcher-block.js:42
+msgid "Code"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:83
+msgid "Hide the current language"
+msgstr ""
+
+#: src/assets/js/switcher-block.js:17
+msgid "Language Switcher"
+msgstr ""
+
+#: src/assets/js/switcher-block.js:48
+msgid "Hide current language"
+msgstr ""
