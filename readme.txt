@@ -51,6 +51,10 @@ Choosing a preset changes two text fields; it does not contact anything. Any oth
 
 Text that has already been translated is served from your own database and never leaves the site again.
 
+= Source code =
+
+The released source is on GitHub at https://github.com/aumcreate/aumlang — bug reports and pull requests are welcome there.
+
 == Installation ==
 
 1. Upload the `aumlang` folder to `/wp-content/plugins/`, or install the plugin ZIP via Plugins → Add New → Upload.
