@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.11
+Stable tag: 1.0.12
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,10 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.12 =
+* The plugin's own description in the Plugins list now matches the one on WordPress.org.
+* Added a link from the Plugins list to the plugin's page on aumcreate.com.
 
 = 1.0.11 =
 * Tags and summary now name what people search for. No functional change to the plugin.
