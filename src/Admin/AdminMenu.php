@@ -259,7 +259,7 @@ class AdminMenu {
 	 * tags in the URL itself.
 	 */
 	private function render_ecosystem_note() {
-		$url = 'https://aumcreate.com/?utm_source=plugin&utm_medium=aumlang&utm_campaign=settings';
+		$url = 'https://aumcreate.com/plugins/aumlang/?utm_source=plugin&utm_medium=aumlang&utm_campaign=settings';
 		echo '<p class="aum-ecosystem-note" style="margin:24px 0 0;color:#646970;font-size:12px">';
 		printf(
 			/* translators: %s: link to aumcreate.com */
