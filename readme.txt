@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.13
+Stable tag: 1.0.15
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,7 +53,13 @@ Text that has already been translated is served from your own database and never
 
 = Source code =
 
-The released source is on GitHub at https://github.com/aumcreate/aumlang — bug reports and pull requests are welcome there.
+The released source is on GitHub at [github.com/aumcreate/aumlang](https://github.com/aumcreate/aumlang) — bug reports and pull requests are welcome there.
+
+= More from AumCreate =
+
+What it translates, how layouts are kept intact, and how hreflang is emitted: [aumcreate.com/plugins/aumlang](https://aumcreate.com/plugins/aumlang)
+
+Also free from AumCreate: llms.txt and schema for AI search, AI crawler control, digital-goods checkout for WooCommerce, and a hosted chat widget: [aumcreate.com/plugins](https://aumcreate.com/plugins)
 
 == Installation ==
 
@@ -85,12 +91,18 @@ This plugin bundles **flag-icons** 7.2.3 by Panayiotis Lipiridis, unmodified, as
 `src/assets/flags/`. It is licensed MIT; the licence text ships alongside them in
 `src/assets/flags/LICENSE.txt`.
 
-* Source: https://github.com/lipis/flag-icons
+* Source: [github.com/lipis/flag-icons](https://github.com/lipis/flag-icons)
 
 The plugin makes **no requests to any external service** to render a switcher: the flags are served
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.15 =
+* The links in the description are now real links. They were plain text, because wordpress.org does not turn a bare address into a link.
+
+= 1.0.14 =
+* Added a short section pointing to the plugin's own page on aumcreate.com and to the other free AumCreate plugins. No code changes.
 
 = 1.0.13 =
 * The link at the foot of the settings screen now goes to the plugin's own page on aumcreate.com instead of the site's front page.
