@@ -123,8 +123,24 @@ class AdminMenu {
 	 */
 	public function add_menu() {
 		if ( $this->is_aumcreate_theme() ) {
+			/*
+			 * 问「那个菜单在哪」，不是「主题在不在」。
+			 *
+			 * 🔴 2026-09-30：主题 2.11.0 把后台页从顶级菜单挪进了「外观」
+			 * （.org 不允许主题建顶级菜单），`aumcreate-settings` 不再是顶级菜单。
+			 * 原来这里写死它，于是这一项进了一个没有顶级菜单去渲染的数组——
+			 * **add_submenu_page() 照常返回正常的 hook 后缀，什么都不报错**，
+			 * 而 Translation 从后台菜单里整项消失。
+			 *
+			 * 判据原来是 is_aumcreate_theme()——「主题启用了吗」，
+			 * 而要问的是「那个菜单在哪」。差的就是这一个词。
+			 */
+			$parent = function_exists( 'aumcreate_admin_parent_slug' )
+				? aumcreate_admin_parent_slug()   // 2.11.0 起是 'themes.php'
+				: 'aumcreate-settings';           // 老主题上函数不存在，老 slug 仍然对
+			
 			$this->hook = add_submenu_page(
-				'aumcreate-settings',
+				$parent,
 				__( 'AumLang', 'aumlang' ),
 				__( 'Translation', 'aumlang' ),
 				SettingsPage::CAPABILITY,
