@@ -260,6 +260,71 @@ class SettingsPage {
 	 *
 	 * @return array<string, array{label:string,endpoint:string,model:string}>
 	 */
+	/**
+	 * Meta keys that actually exist on this site's translatable posts.
+	 *
+	 * 只列**这台站真实有的**，并且按出现次数排序——站长不必知道主题的内部命名，
+	 * 看一眼就能认出哪个是他刚勾过的那个框。
+	 *
+	 * 排除三类：我们自己写的（`_aumlang_*`）、WordPress 的编辑锁之类的运行期痕迹、
+	 * 以及已经在清单里的。**不排除下划线开头的**——主题的设置几乎都以下划线开头，
+	 * 把它们滤掉等于把唯一有用的那批滤掉。
+	 *
+	 * @return array<string,int> key => 出现次数。
+	 */
+	private function meta_key_suggestions() {
+		global $wpdb;
+
+		$types = (array) apply_filters( 'aumlang_translatable_post_types', array( 'post', 'page' ) );
+		$types = array_values( array_filter( array_map( 'sanitize_key', $types ) ) );
+
+		if ( empty( $types ) ) {
+			return array();
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT pm.meta_key AS k, COUNT(*) AS n
+				 FROM {$wpdb->postmeta} pm
+				 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+				 WHERE p.post_type IN ({$placeholders}) AND p.post_status = 'publish'
+				 GROUP BY pm.meta_key
+				 ORDER BY n DESC
+				 LIMIT 40",
+				$types
+			),
+			ARRAY_A
+		);
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		/* 这个类别处读设置就是直接 get_option，没有 settings() 这个方法——别凭印象调。 */
+		$settings = (array) get_option( 'aumlang_settings', array() );
+		$already  = isset( $settings['translatable_meta_keys'] ) ? (array) $settings['translatable_meta_keys'] : array();
+
+		$skip = array( '_edit_lock', '_edit_last', '_pingme', '_encloseme', '_wp_old_slug', '_wp_old_date', '_thumbnail_id' );
+
+		$out = array();
+
+		foreach ( $rows as $row ) {
+			$key = (string) $row['k'];
+
+			if ( 0 === strpos( $key, '_aumlang_' ) || in_array( $key, $skip, true ) || in_array( $key, $already, true ) ) {
+				continue;
+			}
+
+			$out[ $key ] = (int) $row['n'];
+		}
+
+		return $out;
+	}
+
 	private function provider_presets() {
 		return array(
 			'deepseek'   => array(
@@ -464,6 +529,43 @@ class SettingsPage {
 					<p class="aml-card-desc"><?php esc_html_e( 'ACF fields are translated automatically by type. For other raw custom fields (theme/plugin post meta), list the meta keys to translate here — one per line. Only add keys whose value is text.', 'aumlang' ); ?></p>
 					<?php $meta_keys = isset( $settings['translatable_meta_keys'] ) ? (array) $settings['translatable_meta_keys'] : array(); ?>
 					<textarea name="translatable_meta_keys" rows="3" class="large-text code" placeholder="_subtitle&#10;_cta_text"><?php echo esc_textarea( implode( "\n", $meta_keys ) ); ?></textarea>
+					<?php
+					/*
+					 * 🔴 **把这台站真实存在的 meta 键列出来，不要让站长凭空想。**
+					 *
+					 * 2026-10-05 一个真实反馈：主题有个「隐藏默认标题」的勾选框，译文页上
+					 * 没有生效。机制其实是对的——这个清单里的键会被原样复制过去，而 `1`
+					 * 这种值不会被送去翻译。**错在没人知道该往这个框里填什么。**
+					 *
+					 * 一个要求站长填内部键名、又不告诉他有哪些键名的输入框，等于没有这个功能。
+					 */
+					$suggestions = $this->meta_key_suggestions();
+					if ( $suggestions ) :
+						?>
+						<p class="aml-card-desc" style="margin-top:8px">
+							<?php esc_html_e( 'Keys found on this site — click one to add it:', 'aumlang' ); ?>
+						</p>
+						<p class="aumlang-meta-suggest">
+							<?php foreach ( $suggestions as $key => $count ) : ?>
+								<button type="button" class="button button-small aumlang-meta-chip" data-key="<?php echo esc_attr( $key ); ?>">
+									<code><?php echo esc_html( $key ); ?></code>
+									<span>&times;<?php echo (int) $count; ?></span>
+								</button>
+							<?php endforeach; ?>
+						</p>
+						<script>
+						document.querySelectorAll('.aumlang-meta-chip').forEach(function (b) {
+							b.addEventListener('click', function () {
+								var ta = document.querySelector('textarea[name="translatable_meta_keys"]');
+								var have = ta.value.split(/[\r\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+								if ( have.indexOf(b.dataset.key) === -1 ) { have.push(b.dataset.key); }
+								ta.value = have.join('\n');
+							});
+						});
+						</script>
+						<?php
+					endif;
+					?>
 				</div>
 
 				<?php

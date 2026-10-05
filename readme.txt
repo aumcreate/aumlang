@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.17
+Stable tag: 1.0.18
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.18 =
+* The custom fields box now lists the meta keys this site actually uses, with how often each one appears. Carrying a theme's own setting — a "hide the title" checkbox, a page template — across to a translation no longer means guessing its internal name.
+* A translation that finished but left the page looking unchanged now says so, and says why: the page is probably built with a page builder this plugin does not read yet.
 
 = 1.0.17 =
 * Fixed: translating a page built with a page builder we do not read yet could run for many minutes and never finish. The builder's own markup was being sent for translation, came back unchanged, and was retried and split again and again. Markup-only strings are now left alone, and a run stops with a clear message instead of hanging.

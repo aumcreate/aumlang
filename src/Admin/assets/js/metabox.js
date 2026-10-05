@@ -47,6 +47,15 @@
 				if ( data.editLink ) {
 					$row.find( '.aumlang-edit' ).attr( 'href', data.editLink ).show();
 				}
+
+				// 成功路径上也可能有话要说：翻完了、但页面几乎没变。
+				if ( data.notice ) {
+					var $n = $row.find( '.aumlang-notice' );
+					if ( ! $n.length ) {
+						$n = $( '<p class="aumlang-notice description"></p>' ).appendTo( $row );
+					}
+					$n.text( data.notice ).show();
+				}
 			} ).fail( function () {
 				$status.text( AumLangMetaBox.errorPrefix );
 			} ).always( function () {

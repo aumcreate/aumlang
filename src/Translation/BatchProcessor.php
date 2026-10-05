@@ -47,6 +47,15 @@ class BatchProcessor {
 	private $calls = 0;
 
 	/**
+	 * 上一次 translate() 里，因为「整条只是标记」而没有发出去的条数。
+	 *
+	 * 它不是错误。但当它占压倒多数时，说明这个页面的正文其实是某个我们还没读的
+	 * 页面构建器的版面——**翻译会「成功」，而页面几乎没变**。那种成功比失败更难查，
+	 * 所以这个数要一路传到站长眼前。
+	 */
+	public $skipped_markup = 0;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int $max_attempts Attempts per chunk (>= 1).
@@ -71,6 +80,7 @@ class BatchProcessor {
 		$texts = array_values( $texts );
 
 		$this->calls = 0;
+		$this->skipped_markup = 0;
 
 		/*
 		 * 🔴 **整条只是短代码或标记的字符串，一个字也不该发出去。**
@@ -91,6 +101,8 @@ class BatchProcessor {
 				$send[ $idx ] = $text;
 			}
 		}
+		$this->skipped_markup = count( $texts ) - count( $send );
+
 
 		if ( empty( $send ) ) {
 			return $texts;

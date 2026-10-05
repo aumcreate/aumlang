@@ -305,6 +305,8 @@ class MetaBox {
 				'statusLabel' => $this->status_badge( $status ),
 				'editLink'    => (string) get_edit_post_link( $result->target_id, 'url' ),
 				'button'      => __( 'Re-translate', 'aumlang' ),
+				/* 成功也可能有话要说——「翻完了但页面没变」就是那种话。 */
+				'notice'      => (string) $result->message,
 			)
 		);
 	}

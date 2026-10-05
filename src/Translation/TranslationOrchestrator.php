@@ -230,11 +230,35 @@ class TranslationOrchestrator {
 		 */
 		do_action( 'aumlang_after_translate', $source_id, $target_id, $target_lang );
 
+		/*
+		 * 🔴 **「成功但页面没变」要说出来。**
+		 *
+		 * 1.0.17 之后，只是版面标记的字符串不再送去翻译——这治好了卡死，
+		 * 但代价是：用了我们还没读的页面构建器的页面，会**很快「翻译成功」而内容原样**。
+		 * 一个不说话的成功，比一个失败更难查。所以当跳过的占了压倒多数时，把它写进
+		 * 结果消息，一路送到站长眼前。
+		 */
+		$note = '';
+		$skipped_markup = (int) $this->batch->skipped_markup;
+		
+		if ( $skipped_markup > 0 && $skipped_markup >= count( $to_translate ) ) {
+			$note = sprintf(
+				/* translators: %d: number of strings that were page-builder markup. */
+				_n(
+					'%d block of this page is layout markup, not text, so it was left as it is. If the page looks unchanged, it is probably built with a page builder this plugin does not read yet — tell us which one and we will add it.',
+					'%d blocks of this page are layout markup, not text, so they were left as they are. If the page looks unchanged, it is probably built with a page builder this plugin does not read yet — tell us which one and we will add it.',
+					$skipped_markup,
+					'aumlang'
+				),
+				$skipped_markup
+			);
+		}
+		
 		return TranslationResult::ok(
 			$target_id,
 			count( $to_translate ),
 			$reused,
-			sprintf( 'Translated %d, reused %d from cache.', count( $to_translate ), $reused )
+			sprintf( 'Translated %d, reused %d from cache.', count( $to_translate ), $reused ) . ( '' !== $note ? ' ' . $note : '' )
 		);
 	}
 
