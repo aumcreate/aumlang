@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.16
+Stable tag: 1.0.17
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,9 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.17 =
+* Fixed: translating a page built with a page builder we do not read yet could run for many minutes and never finish. The builder's own markup was being sent for translation, came back unchanged, and was retried and split again and again. Markup-only strings are now left alone, and a run stops with a clear message instead of hanging.
 
 = 1.0.16 =
 * Fixed: the menu item could disappear from the admin when the AumCreate theme moved its own page out of the top level. The parent menu is now asked for, not assumed.

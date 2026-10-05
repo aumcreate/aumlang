@@ -28,12 +28,32 @@ class BatchProcessor {
 	private $max_attempts;
 
 	/**
+	 * 一次 translate() 里最多允许多少次 provider 调用。
+	 *
+	 * 🔴 2026-10-05 一个真实站点（Bold Page Builder）上首页翻译永远不返回。
+	 * 原因不是慢，是**拆分是递归的**：一块判为回声 → 重试 max_attempts 次 →
+	 * 二分成两半 → 每一半再各自重试、再各自拆。一块 N 条最坏要 max_attempts × (2N−1)
+	 * 次调用；N=20、max_attempts=2 时约 78 次，而每次调用可能等几十秒。
+	 * 页面上这样的块有几十个，于是一个 AJAX 请求跑几十分钟，PHP 中途被杀，
+	 * 浏览器那边既等不到成功也等不到错误。
+	 *
+	 * 所以这里卡的是**调用次数**，不是单次时长：CoreAiProvider 走 WordPress 自带的
+	 * AI 客户端，单次超时不在我们手里。超了预算就抛错——**一个说得清的失败，
+	 * 比一个永远 pending 的请求有用得多**。
+	 */
+	private $max_calls;
+
+	/** @var int 本次 translate() 已经发出的 provider 调用数。 */
+	private $calls = 0;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int $max_attempts Attempts per chunk (>= 1).
 	 */
-	public function __construct( $max_attempts = 2 ) {
+	public function __construct( $max_attempts = 2, $max_calls = 60 ) {
 		$this->max_attempts = max( 1, (int) $max_attempts );
+		$this->max_calls    = max( 1, (int) $max_calls );
 	}
 
 	/**
@@ -50,6 +70,32 @@ class BatchProcessor {
 	public function translate( ProviderInterface $provider, array $texts, $source_lang, $target_lang, array $options = array() ) {
 		$texts = array_values( $texts );
 
+		$this->calls = 0;
+
+		/*
+		 * 🔴 **整条只是短代码或标记的字符串，一个字也不该发出去。**
+		 *
+		 * 页面构建器（Bold Page Builder、WPBakery…）把版面留在 post_content 里，
+		 * 没有适配的解析器时它们会被当成正文抽出来。模型照原样返回是**正确行为**，
+		 * 但 is_echo() 把「原样返回」判成回声 → 重试 → 递归拆分。
+		 * 也就是说：没适配编辑器这件事，不是「少翻一点」，而是**直接触发那条爆炸路径**。
+		 *
+		 * 判据是「去掉短代码和标签之后还剩不剩字母」——`[button text="Buy now"]` 这种
+		 * 属性里有真文案的，strip_shortcodes 会把整条抹掉、剩不下字母，所以也会被放行；
+		 * 那是**保守方向**：少翻一条，好过让整页翻不完。
+		 */
+		$send = array();
+		foreach ( $texts as $idx => $text ) {
+			$bare = wp_strip_all_tags( strip_shortcodes( (string) $text ) );
+			if ( preg_match( '/\p{L}/u', $bare ) ) {
+				$send[ $idx ] = $text;
+			}
+		}
+
+		if ( empty( $send ) ) {
+			return $texts;
+		}
+
 		if ( empty( $texts ) ) {
 			return array();
 		}
@@ -58,8 +104,16 @@ class BatchProcessor {
 
 		$results = array();
 
-		foreach ( array_chunk( $texts, $size ) as $chunk ) {
+		foreach ( array_chunk( array_values( $send ), $size ) as $chunk ) {
 			$results = array_merge( $results, $this->translate_chunk( $provider, $chunk, $source_lang, $target_lang, $options ) );
+		}
+
+		/* 把译文按原下标放回，没发出去的位置保持原文。 */
+		$out = $texts;
+		foreach ( array_keys( $send ) as $n => $idx ) {
+			if ( array_key_exists( $n, $results ) ) {
+				$out[ $idx ] = $results[ $n ];
+			}
 		}
 
 		/*
@@ -75,11 +129,11 @@ class BatchProcessor {
 		 * is unambiguous. Throwing here means the caller keeps the source text **on purpose** rather than
 		 * believing it translated something.
 		 */
-		if ( self::is_echo( $texts, $results ) ) {
+		if ( self::is_echo( array_values( $send ), $results ) ) {
 			throw new \RuntimeException( 'Provider returned every string unchanged.' );
 		}
 
-		return $results;
+		return $out;
 	}
 
 	/**
@@ -136,6 +190,23 @@ class BatchProcessor {
 			++$attempt;
 
 			try {
+				if ( ++$this->calls > $this->max_calls ) {
+					/*
+					 * 预算用完。这里**不是**超时，是递归拆分把调用次数撑爆了——
+					 * 抛出去让上层把它变成一条站长看得懂的错误，而不是让请求继续跑到
+					 * PHP 被杀、浏览器永远 pending。
+					 */
+					throw new \RuntimeException(
+						esc_html(
+							sprintf(
+								/* translators: %d: number of provider requests allowed for one translation run. */
+								__( 'Stopped after %d translation requests for this one page. This usually means the page contains a lot of text the model keeps returning unchanged — often a page builder\'s own markup. Translate the page in smaller pieces, or tell us which builder this site uses.', 'aumlang' ),
+								(int) $this->max_calls
+							)
+						)
+					);
+				}
+
 				$result = $provider->translate( $chunk, $source_lang, $target_lang, $options );
 
 				/*
