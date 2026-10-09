@@ -119,6 +119,102 @@ class ConfigFileRules {
 	}
 
 	/**
+	 * Option keys declared as translatable site text.
+	 *
+	 * 🔴 这一类字符串存在**数据库里**，不在代码里。
+	 *
+	 * 现有的 StringTranslator 走 gettext 过滤器，所以主题/插件里用 `__()` 包起来的
+	 * 硬编码文字已经覆盖了。但主题设置里填的那些 —— 页脚版权行、首页大标题、
+	 * 「联系我们」按钮的文案 —— 存在 `wp_options` 里，一次 gettext 都不经过，
+	 * 所以那条管道永远看不见它们。
+	 *
+	 * `<admin-texts>` 就是用来声明这些键的。我抽样真实配置文件时 62% 都带这一段，
+	 * 说明这是最常见的一类声明 —— 也就是说这是最常见的一类漏译。
+	 *
+	 * 返回的是**扁平的键路径**：`blogname`、`theme_opts/footer/copyright`。
+	 * 嵌套用斜杠表示，和 WPML 的 `<key name=...>` 嵌套结构对应。
+	 *
+	 * @return string[] Flat option paths.
+	 */
+	public static function admin_texts() {
+		$cached = get_transient( 'aumlang_config_admin_texts' );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$out = array();
+
+		foreach ( self::files() as $file ) {
+			foreach ( self::parse_admin_texts( $file ) as $path ) {
+				$out[] = $path;
+			}
+		}
+
+		$out = array_values( array_unique( $out ) );
+
+		set_transient( 'aumlang_config_admin_texts', $out, self::TTL );
+
+		return $out;
+	}
+
+	/**
+	 * Pull the admin-text declarations out of one file.
+	 *
+	 * @param string $file Absolute path.
+	 * @return string[]
+	 */
+	private static function parse_admin_texts( $file ) {
+		$xml = self::load( $file );
+
+		if ( ! $xml || ! isset( $xml->{'admin-texts'} ) ) {
+			return array();
+		}
+
+		$out = array();
+
+		foreach ( $xml->{'admin-texts'}->key as $key ) {
+			self::walk_keys( $key, '', $out );
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Flatten one `<key>` subtree into slash-joined paths.
+	 *
+	 * 只收**叶子**。中间节点只是容器，它本身没有可翻译的值；
+	 * 把容器也收进来，等于把整个数组当字符串翻，译文会是一团坏数据。
+	 *
+	 * @param \SimpleXMLElement $node   Current key node.
+	 * @param string            $prefix Path so far.
+	 * @param string[]          $out    Collected paths, by reference.
+	 * @return void
+	 */
+	private static function walk_keys( $node, $prefix, array &$out ) {
+		$name = isset( $node['name'] ) ? (string) $node['name'] : '';
+
+		if ( '' === $name ) {
+			return;
+		}
+
+		$path = '' === $prefix ? $name : $prefix . '/' . $name;
+
+		/* 嵌套的子键：往下走，自己不算。 */
+		$children = $node->key;
+
+		if ( $children && count( $children ) > 0 ) {
+			foreach ( $children as $child ) {
+				self::walk_keys( $child, $path, $out );
+			}
+
+			return;
+		}
+
+		$out[] = $path;
+	}
+
+	/**
 	 * Pull the custom-field declarations out of one file.
 	 *
 	 * @param string $file Absolute path.

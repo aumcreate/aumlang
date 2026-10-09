@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.4
+Stable tag: 1.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,16 @@ from this plugin's own directory.
 6. The front-end switcher: add it to a menu, float it on every page, or place it with a shortcode or block.
 
 == Changelog ==
+
+= 1.5.0 =
+* **Menu labels you typed yourself are now translated.** A menu item shows the page title unless you
+  type your own label, and only the first kind was being translated — so a menu could come out mostly
+  in the original language while every link correctly pointed at the translated page. On one site that
+  was 39 of 47 items. The labels you type are now translated like any other text, and so are the
+  titles of sidebar widgets and the text a theme stores in its own settings when the theme declares
+  those settings as translatable.
+* These are filled in while you translate a page, so there is nothing extra to click. They are
+  translated once and remembered, and re-translated if you change them.
 
 = 1.4.4 =
 * Fixed: on servers without PHP's mbstring extension, translating failed outright with

@@ -255,6 +255,44 @@ class StringRepository {
 	}
 
 	/**
+	 * Untranslated rows limited to a set of contexts.
+	 *
+	 * 自动填充只能动**自己采集的那几类**。
+	 *
+	 * 2026-10-09 差一点犯的错：填充器挂上「翻完一页顺手翻站点文字」之后，
+	 * 如果它去翻整张表，就会连 POT 导入器早先注册的那些一起翻 —— 队列里
+	 * 实际躺着 `https://aumcreate.com/plugins/aumlang`（一个网址）和
+	 * `%1$s translation of %2$s`（一个 sprintf 格式串）。前者是白花钱，
+	 * 后者译坏了占位符会让页面输出变成乱码。
+	 *
+	 * 而且那些字符串的翻译一直是站长**自己按按钮**决定的；自动去翻等于替他
+	 * 改了主意，还花了他的钱。所以按 context 划清界限。
+	 *
+	 * @param string   $lang     Language code.
+	 * @param int      $limit    Maximum rows.
+	 * @param string[] $contexts Contexts to include.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function get_untranslated_batch_in( $lang, $limit, array $contexts ) {
+		$wpdb = $this->wpdb;
+
+		if ( empty( $contexts ) ) {
+			return array();
+		}
+
+		$holders = implode( ', ', array_fill( 0, count( $contexts ), '%s' ) );
+		$args    = array_merge( array( $lang ), $contexts, array( (int) $limit ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql = "SELECT id, string_context, source_text FROM {$this->table}
+			 WHERE lang_code = %s AND translated_text = '' AND string_context IN ( {$holders} )
+			 ORDER BY id ASC LIMIT %d";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (array) $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A );
+	}
+
+	/**
 	 * Set a translation by row id.
 	 *
 	 * @param int    $id     Row id.

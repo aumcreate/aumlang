@@ -45,6 +45,8 @@ use AumLang\Seo\MetaTranslator;
 use AumLang\Seo\SeoPluginBridge;
 use AumLang\Seo\SitemapManager;
 use AumLang\Strings\PotImporter;
+use AumLang\Strings\DataStringFiller;
+use AumLang\Strings\DataStrings;
 use AumLang\Strings\StringRepository;
 use AumLang\Strings\StringTranslator;
 use AumLang\Sync\OverrideStore;
@@ -447,6 +449,26 @@ class Plugin {
 		);
 
 		$this->container->set(
+			'data_strings',
+			static function ( Container $c ) {
+				return new DataStrings( $c->get( 'router' ), $c->get( 'string_repository' ) );
+			}
+		);
+
+		$this->container->set(
+			'data_string_filler',
+			static function ( Container $c ) {
+				return new DataStringFiller(
+					$c->get( 'data_strings' ),
+					$c->get( 'string_repository' ),
+					$c->get( 'provider_registry' ),
+					$c->get( 'batch_processor' ),
+					$c->get( 'language_registry' )
+				);
+			}
+		);
+
+		$this->container->set(
 			'pot_importer',
 			static function ( Container $c ) {
 				return new PotImporter( $c->get( 'string_repository' ), $c->get( 'language_registry' ) );
@@ -657,6 +679,13 @@ class Plugin {
 		$this->container->get( 'canonical_manager' )->register();
 		$this->container->get( 'sitemap_manager' )->register();
 		$this->container->get( 'string_translator' )->register();
+
+		/*
+		 * 存在数据库里的站点文字 —— 菜单标签、小工具、主题设置里的文案。
+		 * 它们不走 gettext，所以上面那个管道看不见它们。见 DataStrings 的说明。
+		 */
+		$this->container->get( 'data_strings' )->register();
+		$this->container->get( 'data_string_filler' )->register();
 		$this->container->get( 'translatable_types' )->register();
 		$this->container->get( 'prompt_builder' )->register();
 		$this->container->get( 'woocommerce' )->register();
