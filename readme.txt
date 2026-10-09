@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,14 @@ from this plugin's own directory.
 6. The front-end switcher: add it to a menu, float it on every page, or place it with a shortcode or block.
 
 == Changelog ==
+
+= 1.4.4 =
+* Fixed: on servers without PHP's mbstring extension, translating failed outright with
+  "Call to undefined function mb_check_encoding". This affected 1.4.2 and 1.4.3 and stopped
+  translation completely on those servers — please update. mbstring is very common but it is
+  not guaranteed, and the check added in 1.4.2 for content stored inside shortcode attributes
+  called it on every long attribute value, so any page with one hit the error. Nothing in the
+  plugin needs mbstring any more.
 
 = 1.4.3 =
 * Fixed: a page that had already been translated kept showing as translated even when the plugin had

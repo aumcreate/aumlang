@@ -7,6 +7,8 @@
 
 namespace AumLang\Builders;
 
+use AumLang\Support\Str;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -332,7 +334,7 @@ class ShortcodeText {
 		}
 
 		/* 解出来得是 UTF-8 的 HTML，而且真有标签 —— 否则当它不是。 */
-		if ( ! mb_check_encoding( $decoded, 'UTF-8' ) || ! preg_match( '/<[a-zA-Z][^>]*>/', $decoded ) ) {
+		if ( ! Str::is_utf8( $decoded ) || ! preg_match( '/<[a-zA-Z][^>]*>/', $decoded ) ) {
 			return null;
 		}
 

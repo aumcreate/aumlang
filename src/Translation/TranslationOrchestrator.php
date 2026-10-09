@@ -7,6 +7,8 @@
 
 namespace AumLang\Translation;
 
+use AumLang\Support\Str;
+
 use AumLang\Builders\MetaContentParser;
 use AumLang\Builders\TagGuard;
 use AumLang\Builders\TranslatableNode;
@@ -317,7 +319,7 @@ class TranslationOrchestrator {
 				$pending = array();
 				foreach ( $items as $item ) {
 					if ( ! isset( $store[ $item['path'] ] ) && count( $pending ) < 20 ) {
-						$pending[] = mb_substr( (string) $item['text'], 0, 160 );
+						$pending[] = Str::sub( (string) $item['text'], 0, 160 );
 					}
 				}
 

@@ -7,6 +7,8 @@
 
 namespace AumLang\Admin;
 
+use AumLang\Support\Str;
+
 use AumLang\Builders\ShortcodeText;
 use AumLang\Content\TranslatableTypes;
 use AumLang\Language\LanguageCatalog;
@@ -296,7 +298,7 @@ class SettingsPage {
 		}
 
 		/* 超长的基本是构建器的数据块，不是一句话。 */
-		if ( mb_strlen( $value ) > 2000 ) {
+		if ( Str::len( $value ) > 2000 ) {
 			return false;
 		}
 
@@ -322,7 +324,7 @@ class SettingsPage {
 			return false;                               /* 哈希、指纹、token */
 		}
 
-		if ( false === strpos( $bare, ' ' ) && mb_strlen( $bare ) > 20 ) {
+		if ( false === strpos( $bare, ' ' ) && Str::len( $bare ) > 20 ) {
 			return false;                               /* 一长串不带空格的，是标识符不是句子 */
 		}
 

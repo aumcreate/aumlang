@@ -7,6 +7,8 @@
 
 namespace AumLang\Content;
 
+use AumLang\Support\Str;
+
 use AumLang\Builders\ShortcodeText;
 
 defined( 'ABSPATH' ) || exit;
@@ -136,7 +138,7 @@ class CoverageCheck {
 		 */
 		$dense = preg_match( '/[\x{4E00}-\x{9FFF}\x{3040}-\x{30FF}\x{AC00}-\x{D7AF}]/u', $text );
 
-		if ( mb_strlen( $text ) < ( $dense ? self::MIN_LENGTH_DENSE : self::MIN_LENGTH ) ) {
+		if ( Str::len( $text ) < ( $dense ? self::MIN_LENGTH_DENSE : self::MIN_LENGTH ) ) {
 			return;
 		}
 
