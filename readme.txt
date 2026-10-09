@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.20
+Stable tag: 1.0.21
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,13 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.21 =
+* Aumframe layout translation no longer needs the AumCreate theme. The code that tells Aumframe which
+  languages a site has, which layout a translated page should use, and where its links should point,
+  lived in that theme — so on any other theme a Japanese page was served with the source-language
+  layout, silently and with no error. That code now ships with this plugin and works on any theme.
+  Sites running the AumCreate theme behave exactly as before.
 
 = 1.0.20 =
 * Fixed: when a translation failed because the server never answered — a timeout, a 500, a gateway

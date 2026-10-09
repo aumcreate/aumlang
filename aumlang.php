@@ -3,7 +3,7 @@
  * Plugin Name:       AumLang – AI Multilingual Translation & SEO
  * Plugin URI:       https://aumcreate.com/plugins/aumlang
  * Description:       AI translation for Elementor, Gutenberg and WooCommerce that keeps layouts intact, with per-language URLs, hreflang, canonicals and sitemaps handled.
- * Version:           1.0.20
+ * Version:           1.0.21
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            AumCreate
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * Constants.
  * -------------------------------------------------------------------------
  */
-define( 'AUMLANG_VERSION', '1.0.20' );
+define( 'AUMLANG_VERSION', '1.0.21' );
 define( 'AUMLANG_DB_VERSION', '3' );
 define( 'AUMLANG_FILE', __FILE__ );
 define( 'AUMLANG_DIR', plugin_dir_path( __FILE__ ) );
@@ -69,6 +69,30 @@ if ( is_readable( AUMLANG_DIR . 'vendor/autoload.php' ) ) {
  */
 register_activation_hook( __FILE__, array( '\AumLang\Core\Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( '\AumLang\Core\Deactivator', 'deactivate' ) );
+
+/*
+ * Aumframe 桥：procedural，不走 PSR-4 自动加载，所以显式 require。
+ *
+ * 🔴 **必须等到 after_setup_theme 之后再 require，不能在这里直接 require。**
+ * 插件比主题先加载，所以在插件启动时判断「主题里有没有旧版的桥」永远得到
+ * 「没有」—— 然后主题再注册一遍，同一优先级上就有了两个回调做同一件事。
+ * 这不是推断：2026-10-06 我把旧主题那份放回 orgcheck 靶测，p10 上确实出现了
+ * 两个回调，我自己写的那个守卫被加载顺序绕过去了。延迟到 20 优先级之后，
+ * 主题的 functions.php 已经跑完，这时判断才问得到真话。
+ *
+ * 这几个 filter 都在前台渲染时或后台页面上才触发，远晚于 after_setup_theme，
+ * 所以延迟注册不会漏掉任何一次调用。
+ */
+add_action(
+	'after_setup_theme',
+	function () {
+		if ( function_exists( 'aumcreate_aumlang_template_post_id' ) ) {
+			return;
+		}
+		require_once AUMLANG_DIR . 'src/Integrations/aumframe-bridge.php';
+	},
+	20
+);
 
 /**
  * Main plugin accessor.
