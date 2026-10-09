@@ -68,6 +68,169 @@ class ConfigFileRules {
 	}
 
 	/**
+	 * Custom fields declared by the themes and plugins installed on this site.
+	 *
+	 * 🔴 为什么这件事值得接。
+	 *
+	 * 主题和插件把不少给访客看的文字存在 post meta 里 —— 副标题、按钮文案、规格说明。
+	 * 哪些该翻、哪些只该原样复制（商品编号、尺寸），只有写它的人清楚，
+	 * 而他们已经在自己根目录那份声明里写明了。
+	 *
+	 * 我们本来就有这个能力，只是列表要站长一个个手填 —— 等于让用户去做插件作者
+	 * 已经做完的事。接上之后装了就对，不用问。
+	 *
+	 * 返回两组，因为「复制过去」和「送去翻译」本来就是两个决定（这个类原本就这么分）：
+	 *   translate —— 复制，并且允许送去翻译
+	 *   copy      —— 只复制，永远不送翻（编号、SKU、日期这类）
+	 * `action="ignore"` 的两组都不进，等于不管它。
+	 *
+	 * @return array{translate: string[], copy: string[]}
+	 */
+	public static function custom_fields() {
+		$cached = get_transient( 'aumlang_config_fields' );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$out = array(
+			'translate' => array(),
+			'copy'      => array(),
+		);
+
+		foreach ( self::files() as $file ) {
+			$found = self::parse_fields( $file );
+
+			$out['translate'] = array_merge( $out['translate'], $found['translate'] );
+			$out['copy']      = array_merge( $out['copy'], $found['copy'] );
+		}
+
+		$out['copy'] = array_values( array_unique( $out['copy'] ) );
+
+		/*
+		 * 同一个键被两处声明成不同动作时，以「只复制」为准。
+		 * 少翻一个字段是缺口，把编号翻掉是事故 —— 保守的那一侧才是对的。
+		 */
+		$out['translate'] = array_values( array_diff( array_unique( $out['translate'] ), $out['copy'] ) );
+
+		set_transient( 'aumlang_config_fields', $out, self::TTL );
+
+		return $out;
+	}
+
+	/**
+	 * Pull the custom-field declarations out of one file.
+	 *
+	 * @param string $file Absolute path.
+	 * @return array{translate: string[], copy: string[]}
+	 */
+	private static function parse_fields( $file ) {
+		$xml = self::load( $file );
+		$out = array(
+			'translate' => array(),
+			'copy'      => array(),
+		);
+
+		if ( ! $xml || ! isset( $xml->{'custom-fields'} ) ) {
+			return $out;
+		}
+
+		foreach ( $xml->{'custom-fields'}->{'custom-field'} as $field ) {
+			$name = trim( (string) $field );
+
+			if ( '' === $name ) {
+				continue;
+			}
+
+			$action = isset( $field['action'] ) ? strtolower( trim( (string) $field['action'] ) ) : 'translate';
+
+			if ( 'translate' === $action ) {
+				$out['translate'][] = $name;
+			} elseif ( 'copy' === $action || 'copy-once' === $action ) {
+				$out['copy'][] = $name;
+			}
+
+			/* 其余（ignore / nothing）两组都不进。 */
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Post types and taxonomies the installed themes and plugins say are translatable.
+	 *
+	 * 这些声明只影响**默认值** —— 站长自己在设置里勾过之后，以他的选择为准。
+	 * 作者说「我这个商品类型是要翻的」，是个合理的起点，不是不可推翻的命令。
+	 *
+	 * @return array{post_types: string[], taxonomies: string[]}
+	 */
+	public static function translatable_types() {
+		$cached = get_transient( 'aumlang_config_types' );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$out = array(
+			'post_types' => array(),
+			'taxonomies' => array(),
+		);
+
+		foreach ( self::files() as $file ) {
+			$xml = self::load( $file );
+
+			if ( ! $xml ) {
+				continue;
+			}
+
+			if ( isset( $xml->{'custom-types'} ) ) {
+				foreach ( $xml->{'custom-types'}->{'custom-type'} as $node ) {
+					$name = trim( (string) $node );
+
+					if ( '' !== $name && self::wants_translation( $node ) ) {
+						$out['post_types'][] = $name;
+					}
+				}
+			}
+
+			if ( isset( $xml->taxonomies ) ) {
+				foreach ( $xml->taxonomies->taxonomy as $node ) {
+					$name = trim( (string) $node );
+
+					if ( '' !== $name && self::wants_translation( $node ) ) {
+						$out['taxonomies'][] = $name;
+					}
+				}
+			}
+		}
+
+		$out['post_types'] = array_values( array_unique( $out['post_types'] ) );
+		$out['taxonomies'] = array_values( array_unique( $out['taxonomies'] ) );
+
+		set_transient( 'aumlang_config_types', $out, self::TTL );
+
+		return $out;
+	}
+
+	/**
+	 * Whether a declaration asks for translation rather than just registration.
+	 *
+	 * 写法不统一：有的写 `translate="1"`，有的写 `translate="2"`（表示「每种语言各一份」），
+	 * 有的干脆不写。不写时按「要翻」处理 —— 作者特地把它列进来，本意就是要我们管它；
+	 * 明确写 0 的才跳过。
+	 *
+	 * @param \SimpleXMLElement $node Declaration node.
+	 * @return bool
+	 */
+	private static function wants_translation( $node ) {
+		if ( ! isset( $node['translate'] ) ) {
+			return true;
+		}
+
+		return '0' !== trim( (string) $node['translate'] );
+	}
+
+	/**
 	 * Candidate files: the active theme, its parent, and every active plugin.
 	 *
 	 * @return string[]
@@ -105,23 +268,35 @@ class ConfigFileRules {
 	 * @param string $file Absolute path.
 	 * @return array<string, string[]>
 	 */
-	private static function parse( $file ) {
+	private static function load( $file ) {
 		$size = (int) @filesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $size <= 0 || $size > 512000 ) {
-			return array();
+			return null;
 		}
 
 		$body = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 		if ( ! is_string( $body ) || '' === trim( $body ) ) {
-			return array();
+			return null;
 		}
 
 		$previous = libxml_use_internal_errors( true );
 		$xml      = simplexml_load_string( $body, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOENT );
 		libxml_clear_errors();
 		libxml_use_internal_errors( $previous );
+
+		return $xml ? $xml : null;
+	}
+
+	/**
+	 * Pull the shortcode declarations out of one file.
+	 *
+	 * @param string $file Absolute path.
+	 * @return array<string, string[]>
+	 */
+	private static function parse( $file ) {
+		$xml = self::load( $file );
 
 		if ( ! $xml || ! isset( $xml->shortcodes ) ) {
 			return array();

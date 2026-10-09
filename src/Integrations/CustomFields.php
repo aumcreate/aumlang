@@ -7,6 +7,7 @@
 
 namespace AumLang\Integrations;
 
+use AumLang\Builders\ConfigFileRules;
 use AumLang\Language\LanguageRegistry;
 use AumLang\Translation\BatchProcessor;
 use AumLang\Translation\Provider\ProviderRegistry;
@@ -96,6 +97,14 @@ class CustomFields {
 		$trimmed = trim( $value );
 
 		$translatable = true;
+
+		/*
+		 * 作者声明成 `action="copy"` 的，一律只复制、不送翻。
+		 * 这是他明确表达的意思（商品编号、SKU、尺寸这类），比我们按值的形状猜更可靠。
+		 */
+		if ( in_array( $key, self::copy_only_keys(), true ) ) {
+			return false;
+		}
 
 		if ( is_serialized( $trimmed ) || is_numeric( $trimmed ) ) {
 			$translatable = false;                                     // ids, counts, prices
@@ -191,8 +200,30 @@ class CustomFields {
 	private function keys() {
 		$settings = get_option( 'aumlang_settings', array() );
 		$keys     = isset( $settings[ self::SETTINGS_KEY ] ) ? (array) $settings[ self::SETTINGS_KEY ] : array();
+		$keys     = array_filter( array_map( 'trim', $keys ) );
 
-		return array_values( array_filter( array_map( 'trim', $keys ) ) );
+		/*
+		 * 🔴 站长手填的那份，加上主题/插件自己声明的那份。
+		 *
+		 * 作者比站长更清楚自己哪个 meta 装着给访客看的文字 —— 他们已经在自己根目录
+		 * 那份声明里写明了。不接的话，等于让用户去填一份别人已经填好的表。
+		 */
+		$declared = ConfigFileRules::custom_fields();
+
+		$keys = array_merge( $keys, $declared['translate'], $declared['copy'] );
+
+		return array_values( array_unique( $keys ) );
+	}
+
+	/**
+	 * Meta keys that must be copied across but never sent for translation.
+	 *
+	 * @return string[]
+	 */
+	private static function copy_only_keys() {
+		$declared = ConfigFileRules::custom_fields();
+
+		return $declared['copy'];
 	}
 
 	/**

@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,24 @@ from this plugin's own directory.
 6. The front-end switcher: add it to a menu, float it on every page, or place it with a shortcode or block.
 
 == Changelog ==
+
+= 1.4.0 =
+* Fixed: the list of custom fields suggested on the settings screen was mostly things that must never be
+  translated. It offered whatever was stored against a page — a builder's saved layout, a page-view
+  counter, a version fingerprint — because it looked only at the names. Adding one of those would have
+  sent it to be translated and the translated value would have replaced the real one, quietly breaking
+  the page. Suggestions are now judged by what a field actually contains, so a subtitle or a button
+  label is offered and a colour, a count or a fingerprint is not.
+* Added: when a theme or plugin already states which of its stored fields hold text, AumLang follows it.
+  Many of them ship such a statement for multilingual tools, and the person who wrote the theme knows
+  which of its fields are a subtitle and which are a part number. Fields it marks as text are translated;
+  fields it marks as "copy" are carried across untouched, even when the value reads like a sentence,
+  because the author saying so is better evidence than the value's appearance. Until now this list had to
+  be typed in by hand, which meant asking the site owner a question the theme's author had already
+  answered.
+* Added: post types and taxonomies a theme or plugin declares as translatable are translatable by default.
+  Install a products plugin that says so and its products can be translated without going to look for the
+  setting. This only sets the starting point — a choice saved in Settings always wins.
 
 = 1.3.2 =
 * Added: more builder fields are recognised, chosen by measurement rather than by guesswork. A large set of

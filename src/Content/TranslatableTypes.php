@@ -7,6 +7,8 @@
 
 namespace AumLang\Content;
 
+use AumLang\Builders\ConfigFileRules;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -106,7 +108,17 @@ class TranslatableTypes {
 	public function default_post_types() {
 		$available = array_keys( $this->available_post_types() );
 
-		return array_values( array_intersect( array( 'post', 'page' ), $available ) );
+		/*
+		 * 文章和页面，加上主题/插件自己声明为可翻译的类型。
+		 *
+		 * 装了一个带声明的商品或作品集插件，它的内容就该默认可翻 —— 让站长自己去
+		 * 设置里找出来勾上，是把作者已经回答过的问题又问了用户一遍。
+		 * 只影响默认值：站长保存过自己的选择之后，以他的为准。
+		 */
+		$declared = ConfigFileRules::translatable_types();
+		$wanted   = array_merge( array( 'post', 'page' ), $declared['post_types'] );
+
+		return array_values( array_intersect( $wanted, $available ) );
 	}
 
 	/**
@@ -115,7 +127,11 @@ class TranslatableTypes {
 	 * @return string[]
 	 */
 	public function default_taxonomies() {
-		return array_keys( $this->available_taxonomies() );
+		$available = array_keys( $this->available_taxonomies() );
+		$declared  = ConfigFileRules::translatable_types();
+
+		/* 分类法本来就默认全开，声明只会确认它，不会减少。 */
+		return array_values( array_unique( array_merge( $available, array_intersect( $declared['taxonomies'], $available ) ) ) );
 	}
 
 	/**

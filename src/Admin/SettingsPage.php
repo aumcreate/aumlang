@@ -7,6 +7,7 @@
 
 namespace AumLang\Admin;
 
+use AumLang\Builders\ShortcodeText;
 use AumLang\Content\TranslatableTypes;
 use AumLang\Language\LanguageCatalog;
 use AumLang\Language\LanguagePackInstaller;
@@ -272,6 +273,62 @@ class SettingsPage {
 	 *
 	 * @return array<string,int> key => 出现次数。
 	 */
+	/**
+	 * Does this meta key hold something a translator should see?
+	 *
+	 * 取一个真实的值来判断，而不是靠键名猜 —— 键名叫什么都可能，值骗不了人。
+	 *
+	 * @param string $key Meta key.
+	 * @return bool
+	 */
+	private static function looks_like_prose_meta( $key ) {
+		global $wpdb;
+
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value <> '' LIMIT 1",
+				$key
+			)
+		);
+
+		if ( ! is_string( $value ) || '' === trim( $value ) ) {
+			return false;
+		}
+
+		/* 超长的基本是构建器的数据块，不是一句话。 */
+		if ( mb_strlen( $value ) > 2000 ) {
+			return false;
+		}
+
+		if ( is_serialized( $value ) || is_numeric( trim( $value ) ) ) {
+			return false;
+		}
+
+		/* 和真正送翻时用同一套判据，避免两边标准不一致。 */
+		if ( ! ShortcodeText::is_prose( wp_strip_all_tags( $value ) ) ) {
+			return false;
+		}
+
+		/*
+		 * 推荐列表要比抽取**更严**：抽取多翻一条只是浪费一次调用，
+		 * 推荐错一条是在教站长把内部数据加进翻译列表，后果是译文页被改坏。
+		 *
+		 * 实测挡掉的：`4.2.0:595e50d38ae27a4ec16e0e0a9df00b29`（版本号加哈希）——
+		 * 十六进制字符也算字母，所以它过得了一般的「像不像句子」判断。
+		 */
+		$bare = trim( wp_strip_all_tags( $value ) );
+
+		if ( preg_match( '/[0-9a-f]{16,}/i', $bare ) ) {
+			return false;                               /* 哈希、指纹、token */
+		}
+
+		if ( false === strpos( $bare, ' ' ) && mb_strlen( $bare ) > 20 ) {
+			return false;                               /* 一长串不带空格的，是标识符不是句子 */
+		}
+
+		return (bool) apply_filters( 'aumlang_translate_meta_value', true, $key, $value );
+	}
+
 	private function meta_key_suggestions() {
 		global $wpdb;
 
@@ -316,6 +373,22 @@ class SettingsPage {
 			$key = (string) $row['k'];
 
 			if ( 0 === strpos( $key, '_aumlang_' ) || in_array( $key, $skip, true ) || in_array( $key, $already, true ) ) {
+				continue;
+			}
+
+			/*
+			 * 🔴 列出来之前先看一眼值。
+			 *
+			 * 只按键名列，站上有什么就推荐什么 —— 实测一台站推出来 12 个，
+			 * 全是 `_elementor_data`、`_wp_page_template`、浏览计数这类内部数据，
+			 * 没有一个该翻。站长照着点就是往翻译列表里加垃圾，而这些值被送去翻译后
+			 * **会替换掉真实的值**，把译文页弄坏。
+			 *
+			 * 一个「列出来但不筛」的推荐列表，比没有推荐更糟：它在邀请人做错事。
+			 * 所以这里取一个真实的值看看 —— 像句子才推荐。判据和真正送翻时用的是
+			 * 同一套（`CustomFields::is_translatable_value()`），两边不会说不同的话。
+			 */
+			if ( ! self::looks_like_prose_meta( $key ) ) {
 				continue;
 			}
 
