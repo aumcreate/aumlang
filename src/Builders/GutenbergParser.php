@@ -106,12 +106,16 @@ class GutenbergParser implements BuilderParserInterface {
 			if ( '' !== trim( $html ) ) {
 				$context = ! empty( $block['blockName'] ) ? $block['blockName'] : 'html';
 
-				foreach ( $this->html->extract( $html ) as $text_index => $text ) {
+				foreach ( $this->html->extract_units( $html ) as $text_index => $unit ) {
 					$nodes[] = new TranslatableNode(
 						$block_path . ':h:' . $text_index,
-						$text,
+						$unit['text'],
 						$context,
-						TranslatableNode::TYPE_TEXT,
+						/*
+						 * 整块的单元里带着行内标签，必须标成 HTML —— 编排器据此决定
+						 * 要不要过标签闸。标成 TEXT 的话标签被译坏了也没人拦。
+						 */
+						$unit['html'] ? TranslatableNode::TYPE_HTML : TranslatableNode::TYPE_TEXT,
 						TranslatableNode::DISPOSITION_TRANSLATE
 					);
 				}

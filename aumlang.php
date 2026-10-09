@@ -3,7 +3,7 @@
  * Plugin Name:       AumLang – AI Multilingual Translation & SEO
  * Plugin URI:       https://aumcreate.com/plugins/aumlang
  * Description:       AI translation for Elementor, Gutenberg and WooCommerce that keeps layouts intact, with per-language URLs, hreflang, canonicals and sitemaps handled.
- * Version:           1.0.22
+ * Version:           1.3.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            AumCreate

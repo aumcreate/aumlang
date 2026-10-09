@@ -130,7 +130,7 @@ class CoreAiProvider implements ProviderInterface {
 			);
 		}
 
-		$prompt = $this->system_prompt( $source_lang, $target_lang, $options )
+		$prompt = $this->system_prompt( $source_lang, $target_lang, $options, count( $texts ) )
 			. "\n\n"
 			. wp_json_encode( $texts );
 

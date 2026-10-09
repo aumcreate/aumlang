@@ -183,6 +183,12 @@
 	font-size: 13px;
 }
 
+/* 上面的 -6px 是给紧贴卡片标题的说明用的。当说明跟在字段网格之后时
+   （切换器页的「Menu parent label」），它会把文字拉上去压住输入框。 */
+.aml-field-grid + .aml-card-desc {
+	margin-top: 10px;
+}
+
 .aml-group-label {
 	font-size: 12px;
 	font-weight: 600;

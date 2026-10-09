@@ -8,8 +8,11 @@
 namespace AumLang\Translation;
 
 use AumLang\Builders\MetaContentParser;
+use AumLang\Builders\TagGuard;
+use AumLang\Builders\TranslatableNode;
 use AumLang\Builders\ParserRegistry;
 use AumLang\Content\ContentLinker;
+use AumLang\Content\CoverageCheck;
 use AumLang\Content\NodeTranslationRepository;
 use AumLang\Content\SourceHash;
 use AumLang\Language\LanguageRegistry;
@@ -165,7 +168,7 @@ class TranslationOrchestrator {
 		$items[] = array( 'path' => 'title', 'text' => (string) $source->post_title );
 
 		foreach ( $nodes as $node ) {
-			$items[] = array( 'path' => $node->path, 'text' => $node->text );
+			$items[] = array( 'path' => $node->path, 'text' => $node->text, 'type' => $node->type );
 		}
 
 		if ( '' !== trim( (string) $source->post_excerpt ) ) {
@@ -222,6 +225,29 @@ class TranslationOrchestrator {
 		if ( ! empty( $to_translate ) ) {
 			$this->batch->set_deadline( time() + self::ROUND_SECONDS );
 
+			/*
+			 * 🔴 把上一轮的教训带进这一轮。
+			 *
+			 * 不带的话每一轮都从同样大的块重新开始，走同一条在一轮内走不完的
+			 * 「重试 → 对半拆」路径，然后到点、丢弃、下一轮再来一遍 ——
+			 * `还剩 N` 永远不动。2026-10-07 买家连跑 24 轮零进度就是这样。
+			 * 这里记住上一轮用的块大小，零进度就减半，直到小到一轮能做完为止；
+			 * 最小 1 条，而单条是一定过得去的（它豁免 echo 检查）。
+			 */
+			/*
+			 * 🔴 前缀要和进度键分开。它本来叫 `<progress_key>_n`，而「有几个任务停在
+			 * 半截」是按 `aumlang_prog_%` 数的 —— 于是这个纯内部的提示被数了进去，
+			 * 诊断报告里 1 个半截任务显示成 2 个。统计口径被自己的实现污染了。
+			 */
+			$size_key = 'aumlang_size_' . substr( md5( $progress_key ), 0, 12 );
+			$hint     = (int) get_transient( $size_key );
+
+			if ( $hint > 0 ) {
+				$this->batch->set_chunk_size( $hint );
+			}
+
+			$before = count( $result_map );
+
 			try {
 				$fresh = $this->batch->translate( $provider, array_values( $to_translate ), $source_lang, $target_lang );
 			} catch ( \RuntimeException $e ) {
@@ -236,11 +262,30 @@ class TranslationOrchestrator {
 			$settled = array_flip( $this->batch->settled );
 			$keys    = array_keys( $to_translate );
 
+			$mangled = 0;
+
 			foreach ( $keys as $position => $i ) {
 				if ( $this->batch->incomplete && ! isset( $settled[ $position ] ) ) {
 					continue;   /* 这一轮没轮到，留给下一轮 */
 				}
-				$result_map[ $items[ $i ]['path'] ] = isset( $fresh[ $position ] ) ? $fresh[ $position ] : $items[ $i ]['text'];
+
+				$translated = isset( $fresh[ $position ] ) ? $fresh[ $position ] : $items[ $i ]['text'];
+
+				/*
+				 * 🔴 整块译文要先过标签闸再收。
+				 *
+				 * 按块翻意味着把 `<strong>`、`<a href>` 一起交给模型。多数时候它原样带回，
+				 * 但一旦没带回 —— 丢了标签、改了链接 —— 页面照样显示得出来，只是加粗没了、
+				 * 链接指向错了，不会有任何报错。悄无声息的破坏比翻不出来更糟。
+				 * 对不上就整块退回原文：最坏等于「这块没翻」，不会变成「这块被译坏了」。
+				 */
+				if ( TranslatableNode::TYPE_HTML === ( $items[ $i ]['type'] ?? '' )
+					&& ! TagGuard::kept( $items[ $i ]['text'], (string) $translated ) ) {
+					$translated = $items[ $i ]['text'];
+					++$mangled;
+				}
+
+				$result_map[ $items[ $i ]['path'] ] = $translated;
 			}
 
 			if ( $this->batch->incomplete ) {
@@ -253,7 +298,28 @@ class TranslationOrchestrator {
 				}
 				set_transient( $progress_key, $store, DAY_IN_SECONDS );
 
+				/*
+				 * 这一轮有没有真的往前走？没有，就把块减半再存下去，下一轮用更小的块。
+				 * 走动了就把它收起来 —— 块小是应急手段，不该一直背着。
+				 */
+				if ( count( $result_map ) > $before ) {
+					delete_transient( $size_key );
+				} else {
+					$used = $hint > 0 ? $hint : count( $to_translate );
+					set_transient( $size_key, max( 1, (int) floor( $used / 2 ) ), DAY_IN_SECONDS );
+				}
+
 				$remaining = count( $items ) - count( $store );
+
+				/* 还没做成的原文，截断后带回去 —— 卡住时要看的就是这些。
+				   「还剩 16 条」说明不了问题：16 条是产品型号、是网址、还是普通句子，
+				   对应的修法完全不同，看不到就只能猜。 */
+				$pending = array();
+				foreach ( $items as $item ) {
+					if ( ! isset( $store[ $item['path'] ] ) && count( $pending ) < 20 ) {
+						$pending[] = mb_substr( (string) $item['text'], 0, 160 );
+					}
+				}
 
 				return TranslationResult::partial(
 					count( $store ),
@@ -263,6 +329,14 @@ class TranslationOrchestrator {
 						__( 'Translating… %1$d of %2$d done.', 'aumlang' ),
 						count( $store ),
 						count( $items )
+					),
+					$pending,
+					array(
+						'sent'   => (int) $this->batch->sent_count,
+						'calls'  => (int) $this->batch->round_calls,
+						'chunk'  => $hint > 0 ? (int) $hint : 0,
+						'reason' => (string) $this->batch->last_reason,
+						'mangled' => $mangled,
 					)
 				);
 			}
@@ -270,6 +344,7 @@ class TranslationOrchestrator {
 
 		/* 翻完了，进度不再需要。 */
 		delete_transient( $progress_key );
+		delete_transient( 'aumlang_size_' . substr( md5( $this->progress_key( $source_id, $target_lang ) ), 0, 12 ) );
 
 		$node_translations = array();
 		foreach ( $nodes as $node ) {
@@ -336,12 +411,39 @@ class TranslationOrchestrator {
 			);
 		}
 		
-		return TranslationResult::ok(
+		/*
+		 * 成功那一轮也要留下读数。只在失败时记，报告里成功的那几行就是一片空白 ——
+		 * 而「成功时打了几次」正是判断「是不是刚好擦边过」的依据。
+		 */
+		$result = TranslationResult::ok(
 			$target_id,
 			count( $to_translate ),
 			$reused,
 			sprintf( 'Translated %d, reused %d from cache.', count( $to_translate ), $reused ) . ( '' !== $note ? ' ' . $note : '' )
 		);
+
+		/*
+		 * 翻完之后自己查一遍：有没有哪段正文原样留在译文里。
+		 * 查的是**原始内容**、不走抽取器 —— 抽取器漏掉的，它才看得见。
+		 */
+		$coverage = CoverageCheck::compare(
+			(string) $source->post_content,
+			(string) get_post_field( 'post_content', $target_id )
+		);
+
+		$result->untranslated = $coverage['missed'];
+
+		$result->diag = array(
+			'sent'    => (int) $this->batch->sent_count,
+			'calls'   => (int) $this->batch->round_calls,
+			'chunk'   => 0,
+			'reason'  => (string) $this->batch->last_reason,
+			'mangled' => isset( $mangled ) ? (int) $mangled : 0,
+			'missed'  => count( $coverage['missed'] ),
+			'checked' => (int) $coverage['checked'],
+		);
+
+		return $result;
 	}
 
 	/**

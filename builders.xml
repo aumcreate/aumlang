@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AumLang 内置的短代码字段表。
+
+  说明哪个短代码的哪些属性装着给访客看的文字。没列进来的属性一律不碰 ——
+  版面、颜色、动画这些设置项发给翻译引擎既浪费又危险。
+
+  格式和多语言生态里通用的 wpml-config.xml 一致，所以：
+    · 主题/插件作者在自己根目录放的那份，我们直接读，不用改这里；
+    · 这份文件也可以照着那个格式往下加。
+
+  加一条就是四行，不需要改任何 PHP：
+
+    <shortcode>
+      <tag>my_banner</tag>
+      <attributes>
+        <attribute>heading</attribute>
+      </attributes>
+    </shortcode>
+
+  编码过的值（urlencode、或者 urlencode 过的 JSON）不必在这里声明 ——
+  那种值按内容自动识别，因为它的属性名通常叫 values、items，名字说明不了问题。
+-->
+<wpml-config>
+  <shortcodes>
+
+    <!-- Bold Builder -->
+    <shortcode><tag>bt_bb_headline</tag><attributes>
+      <attribute>headline</attribute><attribute>superheadline</attribute><attribute>subheadline</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>bt_bb_text</tag><attributes><attribute>content</attribute></attributes></shortcode>
+    <shortcode><tag>bt_bb_button</tag><attributes>
+      <attribute>text</attribute><attribute>title</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>bt_bb_image</tag><attributes>
+      <attribute>caption</attribute><attribute>alt</attribute>
+    </attributes></shortcode>
+    <!-- 以下一条来自真实页面抽样（买家站上 text 出现 3 次），非推测 -->
+    <shortcode><tag>bt_bb_progress_bar</tag><attributes><attribute>text</attribute></attributes></shortcode>
+
+    <!-- WPBakery -->
+    <shortcode><tag>vc_custom_heading</tag><attributes><attribute>text</attribute></attributes></shortcode>
+    <shortcode><tag>vc_btn</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>vc_cta</tag><attributes>
+      <attribute>h2</attribute><attribute>h4</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>vc_single_image</tag><attributes>
+      <attribute>alt</attribute><attribute>title</attribute><attribute>caption</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>vc_toggle</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>vc_message</tag><attributes><attribute>message_box_title</attribute></attributes></shortcode>
+    <shortcode><tag>vc_tta_section</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>vc_tab</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>vc_accordion_tab</tag><attributes><attribute>title</attribute></attributes></shortcode>
+
+    <!-- Divi -->
+    <shortcode><tag>et_pb_text</tag><attributes><attribute>header_text</attribute></attributes></shortcode>
+    <shortcode><tag>et_pb_button</tag><attributes><attribute>button_text</attribute></attributes></shortcode>
+    <shortcode><tag>et_pb_blurb</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>et_pb_cta</tag><attributes>
+      <attribute>title</attribute><attribute>button_text</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>et_pb_accordion_item</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>et_pb_tab</tag><attributes><attribute>title</attribute></attributes></shortcode>
+
+    <!-- Avada / Fusion -->
+    <shortcode><tag>fusion_title</tag><attributes>
+      <attribute>content</attribute><attribute>title</attribute>
+    </attributes></shortcode>
+    <shortcode><tag>fusion_button</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>fusion_tagline_box</tag><attributes><attribute>title</attribute></attributes></shortcode>
+
+    <!-- 以下四条按各家约定补入，尚未在真实页面上验证过（标注以便日后核对） -->
+    <shortcode><tag>vc_text_separator</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>et_pb_toggle</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>fusion_toggle</tag><attributes><attribute>title</attribute></attributes></shortcode>
+    <shortcode><tag>fusion_tab</tag><attributes><attribute>title</attribute></attributes></shortcode>
+
+    <!-- WordPress 自带 -->
+    <shortcode><tag>caption</tag><attributes><attribute>caption</attribute></attributes></shortcode>
+
+  </shortcodes>
+</wpml-config>

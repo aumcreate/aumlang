@@ -14,6 +14,7 @@ use AumLang\Admin\AdminMenu;
 use AumLang\Admin\MetaBox;
 use AumLang\Admin\ReviewPage;
 use AumLang\Admin\SettingsPage;
+use AumLang\Admin\DiagnosticsPage;
 use AumLang\Admin\GlossaryPage;
 use AumLang\Admin\StringsPage;
 use AumLang\Admin\SwitcherPage;
@@ -34,6 +35,7 @@ use AumLang\Integrations\WooCommerce;
 use AumLang\Language\LanguagePackInstaller;
 use AumLang\Language\LanguageRegistry;
 use AumLang\Language\LanguageRepository;
+use AumLang\Routing\ContentLinkRewriter;
 use AumLang\Routing\QueryFilter;
 use AumLang\Routing\RewriteRules;
 use AumLang\Seo\CanonicalManager;
@@ -250,7 +252,8 @@ class Plugin {
 					$c->get( 'switcher_page' ),
 					$c->get( 'strings_page' ),
 					$c->get( 'glossary_page' ),
-					$c->get( 'review_page' )
+					$c->get( 'review_page' ),
+					$c->get( 'diagnostics_page' )
 				);
 			}
 		);
@@ -311,7 +314,7 @@ class Plugin {
 				// Builder parsers run first; classic is the universal fallback.
 				$registry->register( new ElementorParser( $html ), 10 );
 				$registry->register( new GutenbergParser( $html ), 20 );
-				$registry->register( new ClassicParser(), 100 );
+				$registry->register( new ClassicParser( $html ), 100 );
 
 				/**
 				 * Fires so other plugins can add a content parser.
@@ -487,6 +490,24 @@ class Plugin {
 		);
 
 		$this->container->set(
+			'content_link_rewriter',
+			static function ( Container $c ) {
+				return new ContentLinkRewriter(
+					$c->get( 'content_linker' ),
+					$c->get( 'language_registry' ),
+					$c->get( 'router' )
+				);
+			}
+		);
+
+		$this->container->set(
+			'diagnostics_page',
+			static function ( Container $c ) {
+				return new DiagnosticsPage( $c->get( 'provider_registry' ), $c->get( 'translation_orchestrator' ) );
+			}
+		);
+
+		$this->container->set(
 			'glossary_page',
 			static function ( Container $c ) {
 				return new GlossaryPage( $c->get( 'language_registry' ), $c->get( 'glossary_repository' ) );
@@ -629,6 +650,7 @@ class Plugin {
 		$this->container->get( 'acf' )->register();
 		$this->container->get( 'custom_fields' )->register();
 		$this->container->get( 'meta_translator' )->register();
+		$this->container->get( 'content_link_rewriter' )->register();
 
 		if ( is_admin() ) {
 			$this->container->get( 'admin_menu' )->register();
@@ -636,6 +658,7 @@ class Plugin {
 			$this->container->get( 'admin_columns' )->register();
 			$this->container->get( 'strings_page' )->register();
 			$this->container->get( 'glossary_page' )->register();
+			$this->container->get( 'diagnostics_page' )->register();
 			$this->container->get( 'review_page' )->register();
 			$this->container->get( 'switcher_page' )->register();
 			$this->container->get( 'term_admin_columns' )->register();

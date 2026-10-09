@@ -28,12 +28,19 @@ trait PromptTrait {
 	 * @param array  $options     Translation options.
 	 * @return string
 	 */
-	protected function system_prompt( $source_lang, $target_lang, array $options ) {
+	protected function system_prompt( $source_lang, $target_lang, array $options, $count = 0 ) {
 		$prompt = sprintf(
 			'You are a professional translation engine. Translate each string in the input JSON array from %1$s to %2$s. '
 			. 'Preserve HTML tags, placeholders (such as %%s, %%1$s, {name}), shortcodes, and URLs exactly as they appear. '
 			. 'Do not add comments or explanations. '
 			. 'Return ONLY a JSON array of translated strings, in the same order and with the same number of items as the input. '
+			/*
+			 * 🔴 把条数写成数字，不要只说「和输入一样多」。
+			 * 实测 DeepSeek 会偶发多吐一条（50 条输入回 51 条），每中一次就触发
+			 * 重试加对半拆分 —— 50 条的活打了 4 次调用。模型照着一个写出来的数字
+			 * 对齐，比照着一句相对描述对齐可靠得多。
+			 */
+			. ( $count > 0 ? sprintf( 'The array must contain exactly %d items. ', $count ) : '' )
 			// Echoing the input passes every structural check a caller can make — same count, same order,
 			// valid JSON — so it has to be discouraged in the prompt as well as detected afterwards.
 			. 'Every string must actually be translated: do not copy the input through unchanged unless it is a proper noun, a product code, or already in the target language.',

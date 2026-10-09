@@ -93,7 +93,7 @@ class DeepSeekProvider implements ProviderInterface {
 			array(
 				array(
 					'role'    => 'system',
-					'content' => $this->system_prompt( $source_lang, $target_lang, $options ),
+					'content' => $this->system_prompt( $source_lang, $target_lang, $options, count( $texts ) ),
 				),
 				array(
 					'role'    => 'user',

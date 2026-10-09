@@ -58,6 +58,13 @@ class AdminMenu {
 	 */
 	private $review;
 
+	/**
+	 * Diagnostics tab.
+	 *
+	 * @var DiagnosticsPage
+	 */
+	private $diagnostics;
+
 
 	/**
 	 * Menu page hook suffix, for targeted asset loading.
@@ -74,19 +81,22 @@ class AdminMenu {
 	 * @param StringsPage  $strings  Strings tab.
 	 * @param GlossaryPage $glossary Glossary tab.
 	 * @param ReviewPage   $review   Review tab.
+	 * @param DiagnosticsPage $diagnostics Diagnostics tab.
 	 */
 	public function __construct(
 		SettingsPage $settings,
 		SwitcherPage $switcher,
 		StringsPage $strings,
 		GlossaryPage $glossary,
-		ReviewPage $review
+		ReviewPage $review,
+		DiagnosticsPage $diagnostics
 	) {
 		$this->settings = $settings;
 		$this->switcher = $switcher;
 		$this->strings  = $strings;
 		$this->glossary = $glossary;
 		$this->review   = $review;
+		$this->diagnostics = $diagnostics;
 	}
 
 	/**
@@ -174,6 +184,7 @@ class AdminMenu {
 			'strings'  => array( 'label' => __( 'Strings', 'aumlang' ), 'icon' => 'dashicons-editor-spellcheck' ),
 			'glossary' => array( 'label' => __( 'Glossary', 'aumlang' ), 'icon' => 'dashicons-book-alt' ),
 			'review'   => array( 'label' => __( 'Review', 'aumlang' ), 'icon' => 'dashicons-yes-alt' ),
+			'diagnostics' => array( 'label' => __( 'Diagnostics', 'aumlang' ), 'icon' => 'dashicons-sos' ),
 		);
 	}
 
@@ -259,6 +270,9 @@ class AdminMenu {
 					case 'review':
 						$this->review->render_tab();
 						break;
+					case 'diagnostics':
+						$this->diagnostics->render_tab();
+						break;
 					default:
 						$this->settings->render_tab();
 				}
@@ -338,6 +352,7 @@ class AdminMenu {
 
 		// The Strings tab brings its own script + localized data.
 		$this->strings->enqueue_assets();
+		$this->diagnostics->enqueue_assets();
 	}
 
 	/**

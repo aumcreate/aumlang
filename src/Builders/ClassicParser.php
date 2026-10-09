@@ -10,17 +10,35 @@ namespace AumLang\Builders;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Extracts visible text nodes from post_content and rebuilds the HTML with
+ * Extracts translatable units from post_content and rebuilds the HTML with
  * translations applied, leaving every tag, attribute, and structure untouched.
  *
  * This is the universal fallback parser; it supports any post and runs last.
+ *
+ * 🔴 这里几乎没有自己的逻辑，是故意的。
+ *
+ * 抽取和回填的实现放在 {@see HtmlTextExtractor}，Elementor 和 Gutenberg 两个解析器
+ * 走的是同一份。以前 Classic 自己抄了一套 DOM 处理，于是「怎么切句子」这件事有两处
+ * 实现 —— 改进一处、漏掉另一处，就只有一部分用户受益。2026-10 把按文本节点切改成
+ * 按块切时，正是这个重复让第一版只修好了三分之一的场景。
  */
 class ClassicParser implements BuilderParserInterface {
 
 	/**
-	 * Wrapper id used to isolate the content fragment inside a DOM document.
+	 * Shared HTML helper.
+	 *
+	 * @var HtmlTextExtractor
 	 */
-	const ROOT_ID = 'aumlang-root';
+	private $html;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param HtmlTextExtractor $html Shared HTML helper.
+	 */
+	public function __construct( HtmlTextExtractor $html ) {
+		$this->html = $html;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -48,15 +66,18 @@ class ClassicParser implements BuilderParserInterface {
 			return array();
 		}
 
-		$dom   = $this->load( $post->post_content );
 		$nodes = array();
 
-		foreach ( $this->text_nodes( $dom ) as $index => $text_node ) {
+		foreach ( $this->html->extract_units( $post->post_content ) as $index => $unit ) {
 			$nodes[] = new TranslatableNode(
 				(string) $index,
-				trim( $text_node->nodeValue ),
-				$text_node->parentNode ? $text_node->parentNode->nodeName : '',
-				TranslatableNode::TYPE_TEXT,
+				$unit['text'],
+				'',
+				/*
+				 * 整块的单元里带着行内标签，必须标成 HTML —— 编排器据此决定要不要
+				 * 过标签闸。标成 TEXT 的话，标签被译坏了也没人拦得住。
+				 */
+				$unit['html'] ? TranslatableNode::TYPE_HTML : TranslatableNode::TYPE_TEXT,
 				TranslatableNode::DISPOSITION_TRANSLATE
 			);
 		}
@@ -74,94 +95,6 @@ class ClassicParser implements BuilderParserInterface {
 			return '';
 		}
 
-		$dom = $this->load( $post->post_content );
-
-		foreach ( $this->text_nodes( $dom ) as $index => $text_node ) {
-			$key = (string) $index;
-
-			if ( ! isset( $translations[ $key ] ) ) {
-				continue;
-			}
-
-			// Preserve the original leading/trailing whitespace around the text.
-			preg_match( '/^(\s*).*?(\s*)$/su', $text_node->nodeValue, $matches );
-			$lead  = isset( $matches[1] ) ? $matches[1] : '';
-			$trail = isset( $matches[2] ) ? $matches[2] : '';
-
-			// Assigning nodeValue escapes special characters automatically.
-			$text_node->nodeValue = $lead . $translations[ $key ] . $trail;
-		}
-
-		return $this->inner_html( $dom );
-	}
-
-	/**
-	 * Load an HTML fragment into a DOM document, forced to UTF-8.
-	 *
-	 * @param string $html HTML fragment.
-	 * @return \DOMDocument
-	 */
-	private function load( $html ) {
-		$dom = new \DOMDocument( '1.0', 'UTF-8' );
-
-		$previous = libxml_use_internal_errors( true );
-
-		$wrapped = '<?xml encoding="UTF-8"?><div id="' . self::ROOT_ID . '">' . $html . '</div>';
-		$dom->loadHTML( $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-
-		libxml_clear_errors();
-		libxml_use_internal_errors( $previous );
-
-		return $dom;
-	}
-
-	/**
-	 * Ordered list of translatable text nodes (non-empty, outside script/style).
-	 *
-	 * The order is deterministic for the same source, so a node's position is a
-	 * stable path between extract() and rebuild().
-	 *
-	 * @param \DOMDocument $dom DOM document.
-	 * @return \DOMNode[]
-	 */
-	private function text_nodes( \DOMDocument $dom ) {
-		$xpath = new \DOMXPath( $dom );
-		$query = $xpath->query( '//text()[not(ancestor::script) and not(ancestor::style)]' );
-
-		$nodes = array();
-
-		if ( false === $query ) {
-			return $nodes;
-		}
-
-		foreach ( $query as $node ) {
-			if ( '' !== trim( $node->nodeValue ) ) {
-				$nodes[] = $node;
-			}
-		}
-
-		return $nodes;
-	}
-
-	/**
-	 * Serialize the inner HTML of the wrapper element.
-	 *
-	 * @param \DOMDocument $dom DOM document.
-	 * @return string
-	 */
-	private function inner_html( \DOMDocument $dom ) {
-		$root = $dom->documentElement;
-
-		if ( ! $root ) {
-			return '';
-		}
-
-		$html = '';
-
-		foreach ( $root->childNodes as $child ) {
-			$html .= $dom->saveHTML( $child );
-		}
-
-		return $html;
+		return $this->html->rebuild( $post->post_content, $translations );
 	}
 }

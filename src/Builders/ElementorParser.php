@@ -271,8 +271,15 @@ class ElementorParser implements BuilderParserInterface, MetaContentParser {
 	 */
 	private function collect_value( $path_base, $kind, $value, $context, array &$nodes ) {
 		if ( 'html' === $kind ) {
-			foreach ( $this->html->extract( $value ) as $text_index => $text ) {
-				$nodes[] = new TranslatableNode( $path_base . ':' . $text_index, $text, $context );
+			foreach ( $this->html->extract_units( $value ) as $text_index => $unit ) {
+				$nodes[] = new TranslatableNode(
+					$path_base . ':' . $text_index,
+					$unit['text'],
+					$context,
+					/* 同上：整块带标签的要标成 HTML，才会被标签闸保护。 */
+					$unit['html'] ? TranslatableNode::TYPE_HTML : TranslatableNode::TYPE_TEXT,
+					TranslatableNode::DISPOSITION_TRANSLATE
+				);
 			}
 
 			return;

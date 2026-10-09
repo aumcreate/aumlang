@@ -107,12 +107,48 @@ class TranslationResult {
 	 * @param string $message          给用户看的话。
 	 * @return self
 	 */
-	public static function partial( $translated_count, $remaining, $message = '' ) {
+	public static function partial( $translated_count, $remaining, $message = '', array $pending = array(), array $diag = array() ) {
 		$r = new self( true, 0, (int) $translated_count, 0, (string) $message );
 		$r->done      = false;
 		$r->remaining = (int) $remaining;
+		$r->pending   = $pending;
+		$r->diag      = $diag;
 		return $r;
 	}
+
+	/**
+	 * 还没翻成的原文样本（截断过），只给诊断用。
+	 *
+	 * 🔴 为什么要带着它走：一轮轮卡住不动时，光知道「还剩 16 条」没用 ——
+	 * 16 条是产品型号、是网址、还是普通句子，对应的修法完全不同。看不到它们
+	 * 就只能猜，而猜出来的修法会改错地方。
+	 *
+	 * @var string[]
+	 */
+	public $pending = array();
+
+	/**
+	 * 这一轮的仪表读数：发了几条、打了几次服务商、最后一条失败原因。
+	 *
+	 * 🔴 「还剩 2 条」和「这一轮 25 秒」摆在一起说不通时，缺的就是这一段。
+	 * 没有它只能靠推断，而推断在这件事上已经错过三次。
+	 *
+	 * @var array<string, mixed>
+	 */
+	public $diag = array();
+
+	/**
+	 * 翻完之后仍然和原文一字不差的正文（截断过）。
+	 *
+	 * 🔴 这是这个插件从「半成品」变成「成品」的那一条。
+	 *
+	 * 抽取永远有长尾 —— WPML 也一样，他们靠一份份配置文件管着。真正的差别不在于
+	 * 漏不漏，而在于**漏了之后谁先知道**。2026-10 为一位买家连发六个版本，每一版
+	 * 都是等他发现、截图、反馈才知道还有一层。有了这个，同样那六层一次就全看见了。
+	 *
+	 * @var string[]
+	 */
+	public $untranslated = array();
 
 	/**
 	 * 还剩多少条没翻（只在 done=false 时有意义）。
