@@ -150,6 +150,11 @@ class MetaBox {
 				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
 				'translating'  => __( 'Translating…', 'aumlang' ),
 				'errorPrefix'  => __( 'Translation failed: ', 'aumlang' ),
+				/* translators: %d is an HTTP status code, %s the server's status text. */
+				'httpFail'     => __( 'the server cut the request off (HTTP %1$d %2$s).', 'aumlang' ),
+				'timeoutFail'  => __( 'the request ran past the server’s time limit before translation finished. A very long page can do this — try translating it in smaller pieces, or raise max_execution_time.', 'aumlang' ),
+				'abortFail'    => __( 'the connection was lost before the server answered.', 'aumlang' ),
+				'unknownFail'  => __( 'no reason reported by the server.', 'aumlang' ),
 			)
 		);
 	}
@@ -291,10 +296,26 @@ class MetaBox {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'aumlang' ) ) );
 		}
 
-		$result = $this->orchestrator->translate_content( $post_id, $lang );
+		/*
+		 * 🔴 这里接 \Throwable 而不只是 \RuntimeException。编排器内部只接后者，所以
+		 * 一个 \TypeError / \Error 会穿过去变成 500 —— 而 admin-ajax 的 500 到了浏览器
+		 * 就是 jQuery 的 fail 分支，用户只看得到「Translation failed:」加一片空白。
+		 * 2026-10-06 一个用户就卡在这个形状上。在 AJAX 边界上把任何失败都变成一条
+		 * 读得懂的 JSON 错误，是这一层该做的事：异常原文照样带出去，不吞掉。
+		 */
+		try {
+			$result = $this->orchestrator->translate_content( $post_id, $lang );
+		} catch ( \Throwable $e ) {
+			wp_send_json_error( array( 'message' => $e->getMessage() ) );
+		}
 
 		if ( ! $result->success ) {
-			wp_send_json_error( array( 'message' => $result->message ) );
+			/* 失败必须给得出原因：空消息等于界面承诺了原因却交了空。 */
+			$why = trim( (string) $result->message );
+			if ( '' === $why ) {
+				$why = __( 'the translation did not complete, and no reason was recorded.', 'aumlang' );
+			}
+			wp_send_json_error( array( 'message' => $why ) );
 		}
 
 		$status = $this->linker->get_status( $post_id, $lang );

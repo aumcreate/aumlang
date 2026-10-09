@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.19
+Stable tag: 1.0.20
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,14 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.20 =
+* Fixed: when a translation failed because the server never answered — a timeout, a 500, a gateway
+  error — the box said only "Translation failed:" and nothing after it. It now says what happened:
+  the HTTP status, the first line of a server error, or, for a timeout, that the page may be too long
+  to translate in one request.
+* Fixed: a failure that was not an ordinary translation error could end the request with no answer at
+  all. Any failure is now reported with its reason, and a failure can no longer report an empty one.
 
 = 1.0.19 =
 * Fixed: the language switcher block's own panel — its name, its description and the Display options — stayed in English
