@@ -25,6 +25,7 @@ use AumLang\Builders\GutenbergParser;
 use AumLang\Builders\HtmlTextExtractor;
 use AumLang\Builders\ParserRegistry;
 use AumLang\Content\ContentLinker;
+use AumLang\Content\CoverageGap;
 use AumLang\Content\NodeTranslationRepository;
 use AumLang\Content\StalenessTracker;
 use AumLang\Content\TranslatableTypes;
@@ -265,7 +266,8 @@ class Plugin {
 					$c->get( 'language_registry' ),
 					$c->get( 'content_linker' ),
 					$c->get( 'translation_orchestrator' ),
-					$c->get( 'provider_registry' )
+					$c->get( 'provider_registry' ),
+					$c->get( 'coverage_gap' )
 				);
 			}
 		);
@@ -273,7 +275,7 @@ class Plugin {
 		$this->container->set(
 			'admin_columns',
 			static function ( Container $c ) {
-				return new AdminColumns( $c->get( 'language_registry' ), $c->get( 'content_linker' ) );
+				return new AdminColumns( $c->get( 'language_registry' ), $c->get( 'content_linker' ), $c->get( 'coverage_gap' ) );
 			}
 		);
 
@@ -352,6 +354,17 @@ class Plugin {
 			'batch_processor',
 			static function () {
 				return new BatchProcessor();
+			}
+		);
+
+		$this->container->set(
+			'coverage_gap',
+			static function ( Container $c ) {
+				return new CoverageGap(
+					$c->get( 'parser_registry' ),
+					$c->get( 'node_translation_repository' ),
+					$c->get( 'content_linker' )
+				);
 			}
 		);
 

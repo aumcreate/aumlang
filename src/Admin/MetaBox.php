@@ -8,6 +8,7 @@
 namespace AumLang\Admin;
 
 use AumLang\Content\ContentLinker;
+use AumLang\Content\CoverageGap;
 use AumLang\Language\LanguageRegistry;
 use AumLang\Translation\Provider\ProviderRegistry;
 use AumLang\Translation\TranslationOrchestrator;
@@ -60,13 +61,22 @@ class MetaBox {
 		LanguageRegistry $languages,
 		ContentLinker $linker,
 		TranslationOrchestrator $orchestrator,
-		ProviderRegistry $providers
+		ProviderRegistry $providers,
+		CoverageGap $gap
 	) {
 		$this->languages    = $languages;
 		$this->linker       = $linker;
 		$this->orchestrator = $orchestrator;
 		$this->providers    = $providers;
+		$this->gap          = $gap;
 	}
+
+	/**
+	 * Coverage gap checker.
+	 *
+	 * @var CoverageGap
+	 */
+	private $gap;
 
 	/**
 	 * Register WordPress hooks.
@@ -219,9 +229,43 @@ class MetaBox {
 			? __( 'Translate', 'aumlang' )
 			: ( 'stale' === $status ? __( 'Update', 'aumlang' ) : __( 'Re-translate', 'aumlang' ) );
 
+		/*
+		 * 🔴 这一页可能看着「已翻译」，而其实还有内容从来没被翻过。
+		 *
+		 * 源页没动、状态就不会变成「过期」—— 但插件升级之后能看见的内容变多了，
+		 * 已经翻过的页面就这么悄悄变得不完整。不说出来，用户以为没事可做。
+		 * 2026-10-09 一位买家正是这样：升级之后页面上 588 条新内容等着翻，
+		 * 后台却只显示「已翻译」，他第三次回来说「表格还是不翻译」。
+		 */
+		$missing = ( 'none' === $status ) ? 0 : $this->gap->count( $post_id, $code );
+
+		if ( $missing > 0 && 'stale' !== $status ) {
+			$status = 'incomplete';
+			$badge  = __( 'Incomplete', 'aumlang' );
+			$button = __( 'Translate the rest', 'aumlang' );
+		}
+
 		echo '<li class="aumlang-row" data-lang="' . esc_attr( $code ) . '">';
 		echo '<span class="aumlang-lang">' . esc_html( $language->name() ) . '</span> ';
 		echo '<span class="aumlang-status aumlang-status-' . esc_attr( $status ) . '">' . esc_html( $badge ) . '</span>';
+
+		if ( $missing > 0 ) {
+			printf(
+				' <span class="aumlang-gap">%s</span>',
+				esc_html(
+					sprintf(
+						/* translators: %d: number of pieces of text with no translation yet. */
+						_n(
+							'%d piece of this page has never been translated.',
+							'%d pieces of this page have never been translated.',
+							$missing,
+							'aumlang'
+						),
+						$missing
+					)
+				)
+			);
+		}
 		echo '<span class="aumlang-actions">';
 		echo '<button type="button" class="button button-small aumlang-translate">' . esc_html( $button ) . '</button>';
 

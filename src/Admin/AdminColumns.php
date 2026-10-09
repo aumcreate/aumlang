@@ -8,6 +8,7 @@
 namespace AumLang\Admin;
 
 use AumLang\Content\ContentLinker;
+use AumLang\Content\CoverageGap;
 use AumLang\Language\LanguageRegistry;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,7 +41,15 @@ class AdminColumns {
 	 * @param LanguageRegistry $languages Language registry.
 	 * @param ContentLinker    $linker    Content linker.
 	 */
-	public function __construct( LanguageRegistry $languages, ContentLinker $linker ) {
+	/**
+	 * Coverage gap checker.
+	 *
+	 * @var CoverageGap
+	 */
+	private $gap;
+
+	public function __construct( LanguageRegistry $languages, ContentLinker $linker, CoverageGap $gap ) {
+		$this->gap = $gap;
 		$this->languages = $languages;
 		$this->linker    = $linker;
 	}
@@ -146,7 +155,26 @@ class AdminColumns {
 			$code   = $language->code();
 			$status = $this->linker->get_status( $post_id, $code );
 			$target = $this->linker->get_translation( $post_id, $code );
-			$label  = $this->status_label( $status );
+
+			/* 看着已翻译、其实还缺内容的那种 —— 见 CoverageGap 的说明。 */
+			$missing = ( 'none' === $status ) ? 0 : $this->gap->count( $post_id, $code );
+
+			if ( $missing > 0 && 'stale' !== $status ) {
+				$status = 'incomplete';
+			}
+
+			$label = ( 'incomplete' === $status )
+				? sprintf(
+					/* translators: %d: number of pieces of text with no translation yet. */
+					_n(
+						'Incomplete — %d piece has never been translated',
+						'Incomplete — %d pieces have never been translated',
+						$missing,
+						'aumlang'
+					),
+					$missing
+				)
+				: $this->status_label( $status );
 			$chip   = strtoupper( $code );
 
 			if ( $target ) {

@@ -628,6 +628,21 @@
 	background: #fce9b3;
 }
 
+/* 「已翻译，但还有内容从来没翻过」—— 和「过期」区分开：
+   过期是源页改了，不完整是我们这边能看见的内容变多了。 */
+.aumlang-metabox .aumlang-status-incomplete {
+	background: #ffe3c2;
+	color: #8a4b1a;
+}
+
+.aumlang-metabox .aumlang-gap {
+	flex: 1 0 100%;
+	margin: 4px 0 0;
+	color: #8a4b1a;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
 .aumlang-metabox .aumlang-actions {
 	flex: 1 0 100%;
 	display: flex;
@@ -674,6 +689,7 @@ button.aumlang-chip.is-busy {
 .aumlang-chip-machine { background: #d7e8ff; color: #0a4b78; }
 .aumlang-chip-reviewed { background: #d6f0d6; color: #135e2b; }
 .aumlang-chip-stale { background: #fce9b3; color: #8a6d1a; }
+.aumlang-chip-incomplete { background: #ffe3c2; color: #8a4b1a; }
 .aumlang-chip-none { background: #f0f0f1; color: #a7aaad; }
 
 .aumlang-col-source {
