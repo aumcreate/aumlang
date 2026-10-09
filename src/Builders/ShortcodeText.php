@@ -301,6 +301,64 @@ class ShortcodeText {
 	}
 
 	/**
+	 * The HTML hidden inside a base64 attribute value, or null.
+	 *
+	 * 🔴 为什么要拆这种值。
+	 *
+	 * 有的构建器把一整块 HTML 先 base64 编码，再塞进短代码属性里 ——
+	 * Bold Builder 的 `[bt_bb_raw_content raw_content="PHRhYmxl..."]` 就是。
+	 * 从外面看那是一串乱码，我们的「像不像正文」判断会（正确地）拒绝它；
+	 * 但里面装的可能是整张规格表。
+	 *
+	 * 2026-10-09 实测：一位买家的页面上 8 个这样的元素，里面是 8 张表、604 个单元格，
+	 * 全部没有被翻译 —— 而页面上别的地方翻得好好的，所以他只看到「表格不翻译」，
+	 * 看不出是整类元素被跳过了。
+	 *
+	 * @param string $value Raw attribute value.
+	 * @return string|null Decoded HTML, or null when it is not base64 HTML.
+	 */
+	public static function encoded_html( $value ) {
+		$value = trim( (string) $value );
+
+		/* base64 的形状：够长、只有 base64 字符、长度是 4 的倍数。 */
+		if ( strlen( $value ) < 40 || ! preg_match( '#^[A-Za-z0-9+/]+={0,2}$#', $value ) || 0 !== strlen( $value ) % 4 ) {
+			return null;
+		}
+
+		$decoded = base64_decode( $value, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+		if ( ! is_string( $decoded ) || '' === trim( $decoded ) ) {
+			return null;
+		}
+
+		/* 解出来得是 UTF-8 的 HTML，而且真有标签 —— 否则当它不是。 */
+		if ( ! mb_check_encoding( $decoded, 'UTF-8' ) || ! preg_match( '/<[a-zA-Z][^>]*>/', $decoded ) ) {
+			return null;
+		}
+
+		return $decoded;
+	}
+
+	/**
+	 * Shortcodes whose attributes could not be parsed, for {@see pcre_failures()}.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private static $pcre_failures = array();
+
+	/**
+	 * Shortcodes the attribute regex failed on during this request.
+	 *
+	 * 平时是空的。非空就说明有内容被整段跳过了 —— 这是个真实发生过的坏法，
+	 * 而且不会自己报出来，所以留个口子让 doctor 问。
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function pcre_failures() {
+		return self::$pcre_failures;
+	}
+
+	/**
 	 * Break a string into ordered segments.
 	 *
 	 * 同一个切分函数给抽取和回填两头用 —— 两头各写一套迟早会走偏，而一旦走偏，
@@ -377,10 +435,38 @@ class ShortcodeText {
 		 * 三种写法都要认：`a="x"`、`a='x'`、`a=x`。
 		 * 只认双引号的话 WPBakery（`text='Our Services'`）整家都抽不到 ——
 		 * 而它是用得最多的短代码构建器之一。转义引号也要跳过，不然值会被截断。
+		 *
+		 * 🔴 引号里那段必须写成「展开式」，不能写 `(?:[^"\\]|\\.)*`。
+		 *
+		 * 后者是带选择分支的量词，PCRE 会为每个字符留回溯点；值一长（约两千字以上）
+		 * 就撑爆 JIT 栈，preg_match_all 返回 false —— 不抛错、不报警，整条短代码
+		 * 被当成「原样保留」，**它所有属性一起消失**。
+		 *
+		 * 2026-10-09 实测：一位买家页面上的表格是 18972 字的 base64 存在属性里，
+		 * preg_last_error() = 6（JIT stack limit exhausted）。他只看到「表格不翻译」，
+		 * 而真相是那一整个短代码从没被解析过。同页另外 7 个一千多字的表格是好的，
+		 * 所以这个坏法会随值的长短忽隐忽现，最难查。
+		 *
+		 * 展开式 `[^"\\]*(?:\\.[^"\\]*)*` 没有歧义分支，是线性的，多长都不会爆。
 		 */
-		$pattern = '/([a-zA-Z_][\w\-]*)\s*=\s*(?:"((?:[^"\\\\]|\\\\.)*)"|\'((?:[^\'\\\\]|\\\\.)*)\'|([^\s\]"\']+))/';
+		$pattern = '/([a-zA-Z_][\w\-]*)\s*=\s*(?:"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"|\'([^\'\\\\]*(?:\\\\.[^\'\\\\]*)*)\'|([^\s\]"\']+))/';
 
-		if ( ! preg_match_all( $pattern, $code, $attrs, PREG_OFFSET_CAPTURE ) ) {
+		$matched = preg_match_all( $pattern, $code, $attrs, PREG_OFFSET_CAPTURE );
+
+		/*
+		 * 正则本身出错和「这段没有属性」长得一样 —— 都是假值。分不清的话，
+		 * 上面那种 bug 还会再来一次而我们还是看不见。所以单独记一笔，
+		 * 让 doctor 能把它报出来。
+		 */
+		if ( false === $matched && PREG_NO_ERROR !== preg_last_error() ) {
+			self::$pcre_failures[] = array(
+				'tag'    => $tag,
+				'length' => strlen( $code ),
+				'error'  => preg_last_error_msg(),
+			);
+		}
+
+		if ( ! $matched ) {
 			return array( array( 'kind' => 'keep', 'text' => $code ) );
 		}
 
@@ -412,8 +498,9 @@ class ShortcodeText {
 			 * 这类配置值不会被翻。
 			 */
 			$json = self::encoded_json( $value );
+			$b64  = $json ? null : self::encoded_html( $value );
 
-			if ( ! $json && ( ! self::is_content_attribute( $tag, $name ) || ! self::is_prose( $value ) ) ) {
+			if ( ! $json && ! $b64 && ( ! self::is_content_attribute( $tag, $name ) || ! self::is_prose( $value ) ) ) {
 				continue;
 			}
 
@@ -428,6 +515,13 @@ class ShortcodeText {
 			 */
 			if ( $json ) {
 				$out[] = array( 'kind' => 'json', 'text' => $value, 'count' => count( $json['strings'] ) );
+
+				$offset = $value_start + strlen( $value );
+				continue;
+			}
+
+			if ( $b64 ) {
+				$out[] = array( 'kind' => 'b64html', 'text' => $value );
 
 				$offset = $value_start + strlen( $value );
 				continue;

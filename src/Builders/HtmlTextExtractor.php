@@ -38,6 +38,8 @@ class HtmlTextExtractor {
 	 *
 	 * 所以：块里只有行内内容（没有块级后代）时，整块的 innerHTML 作为一条。
 	 */
+	const MAX_DEPTH = 2;
+
 	const BLOCKS = array(
 		'p', 'li', 'dt', 'dd', 'td', 'th', 'caption', 'figcaption', 'blockquote',
 		'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'summary', 'legend',
@@ -90,11 +92,91 @@ class HtmlTextExtractor {
 					continue;
 				}
 
+				if ( 'b64html' === $segment['kind'] ) {
+					/* 属性里裹着一整段 HTML。按它本来的样子拆 —— 表格的每个格子
+					   仍然是一个单元，而不是把 19KB 的表一口气交给模型。 */
+					foreach ( $this->inner_units( $segment['text'] ) as $sub ) {
+						$list[] = $sub;
+					}
+
+					continue;
+				}
+
 				$list[] = array( 'text' => trim( $segment['text'] ), 'html' => false );
 			}
 		}
 
 		return $list;
+	}
+
+	/**
+	 * Units inside a base64 attribute value.
+	 *
+	 * 抽取和回填都从这里拿条数，所以两边数出来的一定一样 —— 一旦错开，
+	 * 译文会被塞进别的格子，那比不翻更糟。
+	 *
+	 * @param string $value Raw attribute value.
+	 * @return array<int, array{text:string,html:bool}>
+	 */
+	private function inner_units( $value ) {
+		$inner = ShortcodeText::encoded_html( $value );
+
+		if ( null === $inner ) {
+			return array();
+		}
+
+		return $this->inner_extract( $inner );
+	}
+
+	/**
+	 * Recursion guard shared by {@see inner_extract()} and {@see inner_rebuild()}.
+	 *
+	 * 嵌一层是真的（表格藏在属性里），嵌两层没见过。留一层余量就停，
+	 * 免得哪天遇到自引用的内容把进程转死。
+	 *
+	 * @var int
+	 */
+	private $depth = 0;
+
+	/**
+	 * {@see extract_units()} one level down.
+	 *
+	 * @param string $html Decoded HTML.
+	 * @return array<int, array{text:string,html:bool}>
+	 */
+	private function inner_extract( $html ) {
+		if ( $this->depth >= self::MAX_DEPTH ) {
+			return array();
+		}
+
+		++$this->depth;
+
+		try {
+			return $this->extract_units( $html );
+		} finally {
+			--$this->depth;
+		}
+	}
+
+	/**
+	 * {@see rebuild()} one level down.
+	 *
+	 * @param string $html         Decoded HTML.
+	 * @param array  $translations Map of index => translated text, from zero.
+	 * @return string
+	 */
+	private function inner_rebuild( $html, array $translations ) {
+		if ( $this->depth >= self::MAX_DEPTH ) {
+			return $html;
+		}
+
+		++$this->depth;
+
+		try {
+			return $this->rebuild( $html, $translations );
+		} finally {
+			--$this->depth;
+		}
 	}
 
 	/**
@@ -321,6 +403,29 @@ class HtmlTextExtractor {
 							: (string) $encoded;
 
 						$index += count( $json['strings'] );
+						continue;
+					}
+
+					if ( 'b64html' === $segment['kind'] ) {
+						$inner = ShortcodeText::encoded_html( $segment['text'] );
+
+						if ( null === $inner ) {
+							$rebuilt .= $segment['text'];
+							continue;
+						}
+
+						$count  = count( $this->inner_units( $segment['text'] ) );
+						$picked = array();
+
+						for ( $n = 0; $n < $count; $n++ ) {
+							if ( isset( $translations[ $index + $n ] ) ) {
+								$picked[ $n ] = $translations[ $index + $n ];
+							}
+						}
+
+						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+						$rebuilt .= base64_encode( $this->inner_rebuild( $inner, $picked ) );
+						$index   += $count;
 						continue;
 					}
 

@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,24 @@ from this plugin's own directory.
 6. The front-end switcher: add it to a menu, float it on every page, or place it with a shortcode or block.
 
 == Changelog ==
+
+= 1.4.2 =
+* Fixed: tables and other content that a page builder stores encoded inside a shortcode attribute were
+  never translated. Some builders keep a block of raw HTML as one long encoded attribute value; from the
+  outside it looks like a meaningless string, so it was skipped. On one site that was eight tables and
+  six hundred cells, while the rest of the page translated normally — so it looked as though tables in
+  particular were unsupported. Such a value is now read, its text translated piece by piece, and stored
+  back the way the builder expects. Detection is by shape rather than by builder name, so it applies to
+  any builder that does this.
+* Fixed: a shortcode with a very long attribute value had **all** of its attributes skipped. The pattern
+  used to read attributes could exceed a limit inside PHP's regular-expression engine; when that happened
+  it reported no match, which is indistinguishable from "this shortcode has no attributes". The text was
+  still there and the page still displayed correctly — it simply never reached the translator, and nothing
+  reported a problem. Long values are now read without that limit applying, and if the engine ever does
+  fail, it is recorded instead of passing silently.
+* Changed: a round that finishes now also reports how much of the page it could see. "Sent 3, finished"
+  reads as success, and can be hiding six hundred untranslated table cells; the two numbers only mean
+  something together.
 
 = 1.4.1 =
 * Fixed: a table cell containing a "less than" sign written as plain text, such as the "<0.1%" common in
