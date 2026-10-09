@@ -379,6 +379,18 @@ class HtmlTextExtractor {
 	 * @return \DOMDocument
 	 */
 	private function load( $html ) {
+		/*
+		 * 🔴 把不构成标签的 `<` 先转义掉。
+		 *
+		 * 规格表里「小于」常直接写成 `<0.1%`、`<5μm`。这不是合法 HTML，而 DOM 解析器
+		 * 会把 `<0` 当成一个坏标签的开头，连同后面的内容一起吞掉 —— 结果是**翻译一遍，
+		 * 这个数值就没了**，单元格变成空的，而且不报任何错。
+		 * 2026-10-08 在一位买家的 PCB 参数表上实测到：`<td><0.1%</td>` 回填后成了 `<td></td>`。
+		 *
+		 * 判据是形状：`<` 后面跟字母、`/`、`!`、`?` 才可能是标签，跟数字或空格的一定不是。
+		 */
+		$html = preg_replace( '/<(?![a-zA-Z\/!?])/', '&lt;', (string) $html );
+
 		$dom = new \DOMDocument( '1.0', 'UTF-8' );
 
 		$previous = libxml_use_internal_errors( true );

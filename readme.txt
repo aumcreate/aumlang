@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,19 @@ from this plugin's own directory.
 6. The front-end switcher: add it to a menu, float it on every page, or place it with a shortcode or block.
 
 == Changelog ==
+
+= 1.4.1 =
+* Fixed: a table cell containing a "less than" sign written as plain text, such as the "<0.1%" common in
+  specification tables, lost its contents when the page was translated. That is not valid HTML, and the
+  parser treated the "<" as the start of a tag and swallowed the value with it — the cell came back empty
+  and nothing reported a problem. Such a value is now kept, written the proper way so it displays exactly
+  as before.
+* Fixed: the report of text left untranslated listed part numbers such as "TU-872/SLKSP", which read the
+  same in every language. Three of those in a report make it look as though something went wrong when
+  nothing did.
+* Fixed: short sentences in Chinese, Japanese and Korean were missing from that report. The minimum length
+  for mentioning something was set for languages that put spaces between words; writing that does not has
+  a whole sentence in the space of three English words.
 
 = 1.4.0 =
 * Fixed: the list of custom fields suggested on the settings screen was mostly things that must never be

@@ -38,6 +38,11 @@ class CoverageCheck {
 	const MIN_LENGTH = 12;
 
 	/**
+	 * 中日韩这类不用空格分词的文字，门槛要低得多 —— 一个字顶一个词。
+	 */
+	const MIN_LENGTH_DENSE = 5;
+
+	/**
 	 * Compare a source post against its translation.
 	 *
 	 * @param string $source      Source post_content.
@@ -122,7 +127,16 @@ class CoverageCheck {
 	private static function add( array &$out, $text ) {
 		$text = trim( preg_replace( '/\s+/u', ' ', (string) $text ) );
 
-		if ( mb_strlen( $text ) < self::MIN_LENGTH ) {
+		/*
+		 * 🔴 长度门槛要分文字体系。
+		 *
+		 * 12 个字符是按英文定的（约三四个词）。但中日韩一个字顶一个词 ——
+		 * 「我们每周发货到全球」只有 9 个字，已经是完整一句，却会被当成太短而漏报。
+		 * 和之前「至少两段字母」杀掉 CJK 是同一类错误：拿拉丁文的尺子去量别的文字。
+		 */
+		$dense = preg_match( '/[\x{4E00}-\x{9FFF}\x{3040}-\x{30FF}\x{AC00}-\x{D7AF}]/u', $text );
+
+		if ( mb_strlen( $text ) < ( $dense ? self::MIN_LENGTH_DENSE : self::MIN_LENGTH ) ) {
 			return;
 		}
 
@@ -146,6 +160,15 @@ class CoverageCheck {
 		 */
 		if ( ! preg_match( '/[\x{4E00}-\x{9FFF}\x{3040}-\x{30FF}\x{AC00}-\x{D7AF}\x{0E00}-\x{0E7F}]/u', $text )
 			&& preg_match_all( '/\p{L}{2,}/u', $text ) < 2 ) {
+			return;
+		}
+
+		/*
+		 * 型号也不报。`TU-872/SLKSP`、`RO4835 + IT180A` 这类在哪种语言里都一样，
+		 * 出现在「仍未翻译」的清单里会让站长以为出了问题，而其实什么问题都没有。
+		 * 判据：没有小写字母、却有数字 —— 正常句子不会长这样。
+		 */
+		if ( ! preg_match( '/\p{Ll}/u', $text ) && preg_match( '/\d/', $text ) ) {
 			return;
 		}
 
