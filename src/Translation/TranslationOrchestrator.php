@@ -102,6 +102,27 @@ class TranslationOrchestrator {
 	 * @param bool   $force       Re-translate even unchanged nodes (overrides still kept).
 	 * @return TranslationResult
 	 */
+	/**
+	 * 一轮最多干多少秒。
+	 *
+	 * 20 秒的来历：常见网关超时是 60 秒（nginx fastcgi_read_timeout 默认值），
+	 * 而收工判断在**开始下一块之前**做，所以最坏还会多跑一次调用（上限 60 秒）。
+	 * 20 + 60 = 80 还是会超 —— 但那是最坏情况下的单次慢调用，常态是 20~25 秒。
+	 * 想再保险就把这个数调小；调大没有意义，网关不会因此更有耐心。
+	 */
+	const ROUND_SECONDS = 20;
+
+	/**
+	 * 这一篇、这个语言的进度存在哪。
+	 *
+	 * @param int    $source_id   源文章 ID。
+	 * @param string $target_lang 目标语言。
+	 * @return string
+	 */
+	private function progress_key( $source_id, $target_lang ) {
+		return 'aumlang_prog_' . (int) $source_id . '_' . substr( md5( (string) $target_lang ), 0, 8 );
+	}
+
 	public function translate_content( $source_id, $target_lang, $force = false ) {
 		$source      = get_post( $source_id );
 		$target_lang = strtolower( trim( (string) $target_lang ) );
@@ -175,19 +196,80 @@ class TranslationOrchestrator {
 			}
 		}
 
+		/*
+		 * 🔴 分批：一轮只干固定时长的活，没干完就存下来、让前端再发一次。
+		 *
+		 * 为什么必须这样：单次调服务商超时 60 秒、一轮最多 60 次调用，所以一个请求
+		 * 最坏要跑一小时，而 nginx 默认 fastcgi_read_timeout 是 60 秒。
+		 * 2026-10-07 客户看到的 `502 Bad Gateway` 不是翻译出错，是网关等不下去了 ——
+		 * 页面只要够长，这个设计下**必然**502，不是运气问题。
+		 *
+		 * 进度存在 transient 里而不是节点缓存里，因为节点缓存要先有 group，
+		 * 而 group 要先有译文文章 —— 首次翻译时它还不存在。
+		 */
+		$progress_key = $this->progress_key( $source_id, $target_lang );
+		$saved        = get_transient( $progress_key );
+
+		if ( is_array( $saved ) ) {
+			foreach ( $items as $i => $item ) {
+				if ( isset( $saved[ $item['path'] ] ) ) {
+					$result_map[ $item['path'] ] = $saved[ $item['path'] ];
+					unset( $to_translate[ $i ] );
+				}
+			}
+		}
+
 		if ( ! empty( $to_translate ) ) {
+			$this->batch->set_deadline( time() + self::ROUND_SECONDS );
+
 			try {
 				$fresh = $this->batch->translate( $provider, array_values( $to_translate ), $source_lang, $target_lang );
 			} catch ( \RuntimeException $e ) {
 				return TranslationResult::error( $e->getMessage() );
 			}
 
-			$position = 0;
-			foreach ( array_keys( $to_translate ) as $i ) {
+			/*
+			 * 🔴 用 batch 交出来的 settled 判「哪些定下来了」，**不要拿结果和原文比**。
+			 * 一个两种语言里本来就相同的字符串（专名、数字、单位）会被永远判成没做完，
+			 * 前端就会无限循环重发 —— 那比它要修的 502 更糟。
+			 */
+			$settled = array_flip( $this->batch->settled );
+			$keys    = array_keys( $to_translate );
+
+			foreach ( $keys as $position => $i ) {
+				if ( $this->batch->incomplete && ! isset( $settled[ $position ] ) ) {
+					continue;   /* 这一轮没轮到，留给下一轮 */
+				}
 				$result_map[ $items[ $i ]['path'] ] = isset( $fresh[ $position ] ) ? $fresh[ $position ] : $items[ $i ]['text'];
-				++$position;
+			}
+
+			if ( $this->batch->incomplete ) {
+				/* 存进度，别动文章 —— 半篇译文不该落盘。 */
+				$store = array();
+				foreach ( $items as $item ) {
+					if ( isset( $result_map[ $item['path'] ] ) ) {
+						$store[ $item['path'] ] = $result_map[ $item['path'] ];
+					}
+				}
+				set_transient( $progress_key, $store, DAY_IN_SECONDS );
+
+				$remaining = count( $items ) - count( $store );
+
+				return TranslationResult::partial(
+					count( $store ),
+					$remaining,
+					sprintf(
+						/* translators: 1: strings done so far, 2: strings still to go. */
+						__( 'Translating… %1$d of %2$d done.', 'aumlang' ),
+						count( $store ),
+						count( $items )
+					)
+				);
 			}
 		}
+
+		/* 翻完了，进度不再需要。 */
+		delete_transient( $progress_key );
 
 		$node_translations = array();
 		foreach ( $nodes as $node ) {

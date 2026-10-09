@@ -3,7 +3,7 @@
  * Plugin Name:       AumLang – AI Multilingual Translation & SEO
  * Plugin URI:       https://aumcreate.com/plugins/aumlang
  * Description:       AI translation for Elementor, Gutenberg and WooCommerce that keeps layouts intact, with per-language URLs, hreflang, canonicals and sitemaps handled.
- * Version:           1.0.21
+ * Version:           1.0.22
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            AumCreate
@@ -23,7 +23,14 @@ defined( 'ABSPATH' ) || exit;
  * Constants.
  * -------------------------------------------------------------------------
  */
-define( 'AUMLANG_VERSION', '1.0.21' );
+/*
+ * 🔴 从插件头读，不写死。两处写同一个数字迟早会漂，而这个常量是功能键：
+ * 它进 wp_enqueue_* 的版本参数（缓存键），也可能被当成升级判据。
+ * 2026-10-07 aumnexcart 和 aumreserva 就是这么漂的 —— 头 1.3.1 / 常量 1.2.0，
+ * 买家更新后浏览器继续发旧 CSS/JS，而两边日志都干净。
+ * 一处定义，而不是两处再加一道闸去盯着它们。
+ */
+define( 'AUMLANG_VERSION', (string) ( get_file_data( __FILE__, array( 'Version' => 'Version' ) )['Version'] ?: '0' ) );
 define( 'AUMLANG_DB_VERSION', '3' );
 define( 'AUMLANG_FILE', __FILE__ );
 define( 'AUMLANG_DIR', plugin_dir_path( __FILE__ ) );

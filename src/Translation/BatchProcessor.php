@@ -47,6 +47,36 @@ class BatchProcessor {
 	private $calls = 0;
 
 	/**
+	 * 这一轮的收工时刻（unix 时间戳）；0 表示不限时。
+	 *
+	 * 🔴 为什么按**时间**而不是按条数收工：条数限不住墙钟。
+	 * 单次调服务商超时 60 秒、一轮最多 60 次调用 —— 按条数算，一个请求最坏跑
+	 * 一小时，而 nginx 默认 fastcgi_read_timeout 是 60 秒。2026-10-07 客户收到的
+	 * 502 就是这么来的：不是翻译出错，是网关等不下去了。
+	 *
+	 * @var int
+	 */
+	private $deadline = 0;
+
+	/**
+	 * 这一轮是不是因为到点了而提前收工（还有没翻的）。
+	 *
+	 * @var bool
+	 */
+	public $incomplete = false;
+
+	/**
+	 * 这一轮**已经定下来**的原始下标（含无需翻译的纯标记）。
+	 *
+	 * 🔴 调用方必须用这个判断「哪些做完了」，**不能拿「结果是否等于原文」去判**：
+	 * 一个两种语言里本来就相同的字符串（专名、数字、单位）会被永远判成没做完，
+	 * 于是前端会无限循环重发 —— 那比它要修的 502 更糟。
+	 *
+	 * @var int[]
+	 */
+	public $settled = array();
+
+	/**
 	 * 上一次 translate() 里，因为「整条只是标记」而没有发出去的条数。
 	 *
 	 * 它不是错误。但当它占压倒多数时，说明这个页面的正文其实是某个我们还没读的
@@ -76,11 +106,31 @@ class BatchProcessor {
 	 * @return string[]
 	 * @throws \RuntimeException If a chunk and its smaller fallback batches fail.
 	 */
+	/**
+	 * 设定这一轮的收工时刻。到点之后不再开始新的一块。
+	 *
+	 * @param int $timestamp unix 时间戳；0 表示不限。
+	 * @return void
+	 */
+	public function set_deadline( $timestamp ) {
+		$this->deadline = max( 0, (int) $timestamp );
+	}
+
 	public function translate( ProviderInterface $provider, array $texts, $source_lang, $target_lang, array $options = array() ) {
 		$texts = array_values( $texts );
 
 		$this->calls = 0;
 		$this->skipped_markup = 0;
+
+		/*
+		 * 🔴 这两个也必须重置。生产环境每轮是独立请求、实例是新的，所以漏掉看不出来；
+		 * 但同一个请求里调两次（比如测试、或将来有人在一次请求里翻两篇），
+		 * 上一轮的 incomplete 会被这一轮继承 —— 于是一个**已经翻完**的轮次
+		 * 仍然报 done=false，白跑一轮。2026-10-07 的端到端测试就是这么撞出来的：
+		 * 第 3 轮「剩 0」却说没完。
+		 */
+		$this->incomplete = false;
+		$this->settled    = array();
 
 		/*
 		 * 🔴 **整条只是短代码或标记的字符串，一个字也不该发出去。**
@@ -117,14 +167,30 @@ class BatchProcessor {
 		$results = array();
 
 		foreach ( array_chunk( array_values( $send ), $size ) as $chunk ) {
+			/*
+			 * 到点就收工，**在开始下一块之前判**，不是判完再做。
+			 * 已经做完的那些照常返回，调用方负责存下来并再发一次。
+			 */
+			if ( $this->deadline && time() >= $this->deadline ) {
+				$this->incomplete = true;
+				break;
+			}
 			$results = array_merge( $results, $this->translate_chunk( $provider, $chunk, $source_lang, $target_lang, $options ) );
 		}
 
 		/* 把译文按原下标放回，没发出去的位置保持原文。 */
 		$out = $texts;
+
+		/*
+		 * 纯标记的那些这一轮就算定下来了：它们本来就不需要翻译，
+		 * 原样留着是正确结果，不是「还没轮到」。
+		 */
+		$this->settled = array_values( array_diff( array_keys( $texts ), array_keys( $send ) ) );
+
 		foreach ( array_keys( $send ) as $n => $idx ) {
 			if ( array_key_exists( $n, $results ) ) {
-				$out[ $idx ] = $results[ $n ];
+				$out[ $idx ]      = $results[ $n ];
+				$this->settled[] = $idx;
 			}
 		}
 
@@ -141,7 +207,11 @@ class BatchProcessor {
 		 * is unambiguous. Throwing here means the caller keeps the source text **on purpose** rather than
 		 * believing it translated something.
 		 */
-		if ( self::is_echo( array_values( $send ), $results ) ) {
+		/*
+		 * 🔴 提前收工时不许跑这条判断。它问的是「服务商是不是把每一条都原样退回来了」，
+		 * 而半截的结果本来就少一截 —— 拿它去判会把一次正常的分批误报成服务商坏了。
+		 */
+		if ( ! $this->incomplete && self::is_echo( array_values( $send ), $results ) ) {
 			throw new \RuntimeException( 'Provider returned every string unchanged.' );
 		}
 

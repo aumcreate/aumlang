@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.21
+Stable tag: 1.0.22
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,15 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.22 =
+* Fixed: translating a long page failed with "502 Bad Gateway". The whole page was translated in one
+  request, and on a page with a lot of text that request ran for minutes — longer than most servers will
+  wait before cutting it off. Translation now runs in short rounds: each round does about twenty seconds
+  of work, saves what it finished, and the browser asks for the next one, so the page size no longer
+  decides whether it works. The box counts down as it goes.
+* A page is only saved once the whole translation is finished, so an interrupted run leaves nothing
+  half-translated behind.
 
 = 1.0.21 =
 * Aumframe layout translation no longer needs the AumCreate theme. The code that tells Aumframe which

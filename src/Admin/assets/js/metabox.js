@@ -27,12 +27,48 @@
 			$button.prop( 'disabled', true );
 			$status.text( AumLangMetaBox.translating );
 
-			$.post( AumLangMetaBox.ajaxUrl, {
-				action: 'aumlang_translate',
-				post: postId,
-				lang: lang,
-				nonce: nonce
-			} ).done( function ( response ) {
+			/*
+			 * 🔴 一次点击可能要发多轮。服务端一轮只干 20 秒就收工，返回 done:false，
+			 * 我们再发一次 —— 否则页面一长，整篇翻完要几分钟，而网关 60 秒就掐。
+			 * 2026-10-07 客户收到的 `502 Bad Gateway` 就是这么来的。
+			 *
+			 * 轮数有上限：服务端每轮都必须有进展（remaining 变小），否则停下来报错，
+			 * 不无限转 —— 一个转不停的进度条比一个明确的失败更糟。
+			 */
+			var rounds = 0;
+			var lastRemaining = -1;
+
+			function send() {
+				++rounds;
+				return $.post( AumLangMetaBox.ajaxUrl, {
+					action: 'aumlang_translate',
+					post: postId,
+					lang: lang,
+					nonce: nonce
+				} ).done( function ( response ) {
+					if ( response && response.success && response.data && response.data.done === false ) {
+						var left = parseInt( response.data.remaining, 10 );
+
+						if ( rounds > 1 && ! ( left < lastRemaining ) ) {
+							$status.text( AumLangMetaBox.errorPrefix + AumLangMetaBox.noProgress );
+							$button.prop( 'disabled', false );
+							return;
+						}
+						lastRemaining = left;
+
+						$status.text(
+							AumLangMetaBox.stillToGo.replace( '%d', isNaN( left ) ? '' : left )
+						);
+						send();
+						return;
+					}
+					handle( response );
+				} ).fail( onFail ).always( function () {
+					$button.prop( 'disabled', false );
+				} );
+			}
+
+			function handle( response ) {
 				if ( ! response || ! response.success ) {
 					var msg = response && response.data ? response.data.message : '';
 					$status.text( AumLangMetaBox.errorPrefix + msg );
@@ -66,7 +102,9 @@
 			 * 超时单独说，因为它最常见也最可行动：页面太长时整个请求会跑过服务器的时间
 			 * 上限，而这和「翻译本身出错」要给的建议完全不同。
 			 */
-			} ).fail( function ( jqXHR, textStatus ) {
+			}
+
+			function onFail( jqXHR, textStatus ) {
 				var why;
 
 				if ( 'timeout' === textStatus ) {
@@ -90,9 +128,9 @@
 				}
 
 				$status.text( AumLangMetaBox.errorPrefix + why );
-			} ).always( function () {
-				$button.prop( 'disabled', false );
-			} );
+			}
+
+			send();
 		} );
 	} );
 } )( jQuery );

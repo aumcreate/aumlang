@@ -149,6 +149,9 @@ class MetaBox {
 			array(
 				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
 				'translating'  => __( 'Translating…', 'aumlang' ),
+				/* translators: %d is how many strings are still to translate. */
+				'stillToGo'    => __( 'Translating… %d left', 'aumlang' ),
+				'noProgress'   => __( 'the server stopped making progress on this page. Nothing was changed; try again, or translate the page in smaller sections.', 'aumlang' ),
 				'errorPrefix'  => __( 'Translation failed: ', 'aumlang' ),
 				/* translators: %d is an HTTP status code, %s the server's status text. */
 				'httpFail'     => __( 'the server cut the request off (HTTP %1$d %2$s).', 'aumlang' ),
@@ -318,10 +321,26 @@ class MetaBox {
 			wp_send_json_error( array( 'message' => $why ) );
 		}
 
+		/*
+		 * 🔴 没翻完：不要去拿状态和编辑链接 —— 译文文章还不存在。
+		 * 前端拿到 done=false 就再发一次，直到 true。整篇翻完才落盘，
+		 * 所以中途失败不会在站上留下半篇译文。
+		 */
+		if ( ! $result->done ) {
+			wp_send_json_success(
+				array(
+					'done'      => false,
+					'remaining' => (int) $result->remaining,
+					'notice'    => (string) $result->message,
+				)
+			);
+		}
+
 		$status = $this->linker->get_status( $post_id, $lang );
 
 		wp_send_json_success(
 			array(
+				'done'        => true,
 				'status'      => $status,
 				'statusLabel' => $this->status_badge( $status ),
 				'editLink'    => (string) get_edit_post_link( $result->target_id, 'url' ),
