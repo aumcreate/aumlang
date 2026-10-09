@@ -2,35 +2,31 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AumLang 0.1.0\n"
+"Project-Id-Version: AumLang – AI Multilingual Translation & SEO 1.0.18\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aumlang\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-20T08:03:35+00:00\n"
+"POT-Creation-Date: 2026-10-05T19:22:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aumlang\n"
 
 #. Plugin Name of the plugin
 #: aumlang.php
-#: src/Admin/AdminMenu.php:136
-#: src/Admin/AdminMenu.php:147
-#: src/Admin/AdminMenu.php:148
-#: src/Admin/AdminMenu.php:224
-msgid "AumLang"
+msgid "AumLang – AI Multilingual Translation & SEO"
 msgstr ""
 
 #. Plugin URI of the plugin
 #: aumlang.php
-msgid "https://aumcreate.com/aumlang"
+msgid "https://aumcreate.com/plugins/aumlang"
 msgstr ""
 
 #. Description of the plugin
 #: aumlang.php
-msgid "Builder-friendly, SEO-complete multilingual translation for WordPress. By AumCreate."
+msgid "AI translation for Elementor, Gutenberg and WooCommerce that keeps layouts intact, with per-language URLs, hreflang, canonicals and sitemaps handled."
 msgstr ""
 
 #. Author of the plugin
@@ -63,7 +59,7 @@ msgstr ""
 #: src/Admin/AdminColumns.php:210
 #: src/Admin/MetaBox.php:271
 #: src/Admin/ReviewPage.php:147
-#: src/Admin/ReviewPage.php:235
+#: src/Admin/ReviewPage.php:225
 #: src/Admin/TermAdminColumns.php:291
 msgid "Reviewed"
 msgstr ""
@@ -75,69 +71,73 @@ msgstr ""
 
 #: src/Admin/AdminColumns.php:214
 #: src/Admin/MetaBox.php:275
-#: src/Admin/ReviewPage.php:241
+#: src/Admin/ReviewPage.php:231
 msgid "Not translated"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:137
+#: src/Admin/AdminMenu.php:144
+#: src/Admin/AdminMenu.php:155
+#: src/Admin/AdminMenu.php:156
+#: src/Admin/AdminMenu.php:228
+msgid "AumLang"
+msgstr ""
+
+#: src/Admin/AdminMenu.php:145
 #: src/Admin/GlossaryPage.php:183
 #: src/Admin/GlossaryPage.php:223
 #: src/Admin/ReviewPage.php:173
-#: src/Admin/StringsPage.php:340
+#: src/Admin/StringsPage.php:348
 msgid "Translation"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:164
+#: src/Admin/AdminMenu.php:172
 #: src/assets/js/switcher-block.js:36
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:165
+#: src/Admin/AdminMenu.php:173
 msgid "Switcher"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:166
+#: src/Admin/AdminMenu.php:174
 msgid "Strings"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:167
+#: src/Admin/AdminMenu.php:175
 msgid "Glossary"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:168
+#: src/Admin/AdminMenu.php:176
 msgid "Review"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:169
-#: src/Admin/LicensePage.php:126
-msgid "License"
-msgstr ""
-
-#: src/Admin/AdminMenu.php:227
+#: src/Admin/AdminMenu.php:231
 msgid "Builder-friendly, SEO-complete multilingual translation."
 msgstr ""
 
-#: src/Admin/AdminMenu.php:232
+#: src/Admin/AdminMenu.php:236
 msgid "AumLang sections"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:238
-msgid "Activate AumLang to unlock this section."
+#. translators: %s: link to aumcreate.com
+#: src/Admin/AdminMenu.php:282
+#, php-format
+msgid "Part of the AumCreate ecosystem — themes and templates built around it. %s"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:314
+#: src/Admin/AdminMenu.php:324
 msgid "Testing…"
 msgstr ""
 
-#: src/Admin/AdminMenu.php:315
+#: src/Admin/AdminMenu.php:325
 msgid "Request failed."
 msgstr ""
 
-#: src/Admin/AdminMenu.php:341
+#: src/Admin/AdminMenu.php:361
 msgid "AumLang needs pretty permalinks for language URLs like /zh/ to work. Plain permalinks are currently active."
 msgstr ""
 
-#: src/Admin/AdminMenu.php:343
+#: src/Admin/AdminMenu.php:363
 msgid "Change permalink settings"
 msgstr ""
 
@@ -207,7 +207,7 @@ msgid "Case"
 msgstr ""
 
 #: src/Admin/GlossaryPage.php:225
-#: src/Admin/StringsPage.php:341
+#: src/Admin/StringsPage.php:349
 msgid "Actions"
 msgstr ""
 
@@ -217,84 +217,6 @@ msgstr ""
 
 #: src/Admin/GlossaryPage.php:242
 msgid "Delete term"
-msgstr ""
-
-#: src/Admin/LicensePage.php:94
-msgid "AumLang is locked until you activate it. Enter your license to unlock all sections."
-msgstr ""
-
-#: src/Admin/LicensePage.php:96
-msgid "Activate AumLang"
-msgstr ""
-
-#: src/Admin/LicensePage.php:117
-msgid "Activate AumLang on this domain. Bundled with the AumCreate theme? It activates automatically."
-msgstr ""
-
-#: src/Admin/LicensePage.php:120
-msgid "License activated."
-msgstr ""
-
-#: src/Admin/LicensePage.php:122
-msgid "That license code is not valid for this domain."
-msgstr ""
-
-#: src/Admin/LicensePage.php:130
-msgid "Activated via the AumCreate theme"
-msgstr ""
-
-#: src/Admin/LicensePage.php:131
-msgid "AumLang is covered by your AumCreate theme license — no separate code needed. To use AumLang on a site without the AumCreate theme, enter a standalone license below."
-msgstr ""
-
-#: src/Admin/LicensePage.php:133
-msgid "Active"
-msgstr ""
-
-#: src/Admin/LicensePage.php:135
-msgid "Not activated"
-msgstr ""
-
-#: src/Admin/LicensePage.php:145
-msgid "License code"
-msgstr ""
-
-#: src/Admin/LicensePage.php:148
-msgid "Paste your AumLang license code"
-msgstr ""
-
-#. translators: %s: the site's root domain.
-#: src/Admin/LicensePage.php:153
-#, php-format
-msgid "The license is bound to this domain: %s"
-msgstr ""
-
-#: src/Admin/LicensePage.php:160
-msgid "Verify & activate"
-msgstr ""
-
-#: src/Admin/LicensePage.php:177
-msgid "This code is for a different domain."
-msgstr ""
-
-#: src/Admin/LicensePage.php:179
-msgid "This code is not an AumLang license."
-msgstr ""
-
-#: src/Admin/LicensePage.php:181
-msgid "This license has expired."
-msgstr ""
-
-#: src/Admin/LicensePage.php:185
-msgid "This license code is not valid."
-msgstr ""
-
-#: src/Admin/LicensePage.php:187
-msgid "This server is missing the libsodium extension needed to verify licenses."
-msgstr ""
-
-#: src/Admin/LicensePage.php:189
-msgid "Could not verify the license code."
 msgstr ""
 
 #: src/Admin/MetaBox.php:105
@@ -312,7 +234,7 @@ msgid "Translation failed: "
 msgstr ""
 
 #: src/Admin/MetaBox.php:174
-#: src/Admin/StringsPage.php:403
+#: src/Admin/StringsPage.php:411
 msgid "No translation provider is configured."
 msgstr ""
 
@@ -350,20 +272,20 @@ msgstr ""
 
 #: src/Admin/MetaBox.php:269
 #: src/Admin/ReviewPage.php:146
-#: src/Admin/ReviewPage.php:239
+#: src/Admin/ReviewPage.php:229
 msgid "Machine"
 msgstr ""
 
 #: src/Admin/MetaBox.php:273
 #: src/Admin/ReviewPage.php:148
-#: src/Admin/ReviewPage.php:237
+#: src/Admin/ReviewPage.php:227
 msgid "Outdated"
 msgstr ""
 
 #: src/Admin/MetaBox.php:291
-#: src/Admin/SettingsPage.php:191
-#: src/Admin/SettingsPage.php:283
-#: src/Admin/StringsPage.php:396
+#: src/Admin/SettingsPage.php:201
+#: src/Admin/SettingsPage.php:371
+#: src/Admin/StringsPage.php:404
 #: src/Admin/TermAdminColumns.php:240
 msgid "Permission denied."
 msgstr ""
@@ -398,215 +320,239 @@ msgstr ""
 msgid "No translations match this filter."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:176
+#: src/Admin/SettingsPage.php:186
 msgid "Settings saved."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:211
+#: src/Admin/SettingsPage.php:219
+msgid "WordPress has no AI provider connected yet. Connect one under Settings > Connectors, or switch the engine to a direct connection."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:240
 msgid "Enter an API key first."
 msgstr ""
 
 #. translators: %s: the translated sample word.
-#: src/Admin/SettingsPage.php:220
+#: src/Admin/SettingsPage.php:250
 #, php-format
 msgid "Connection OK — \"Hello\" translated to \"%s\"."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:240
+#: src/Admin/SettingsPage.php:335
 msgid "Affordable and broadly reachable — a good default to start with."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:247
+#: src/Admin/SettingsPage.php:342
 msgid "High quality, but some servers cannot reach it — you may need a server in another region or a relay."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:254
-msgid "An alternative provider that is reachable when others are not."
-msgstr ""
-
-#: src/Admin/SettingsPage.php:261
+#: src/Admin/SettingsPage.php:349
 msgid "One key, many models (GPT, Claude, Gemini…). Handy if you want to switch models."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:264
+#: src/Admin/SettingsPage.php:352
 msgid "Custom (relay / proxy)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:268
+#: src/Admin/SettingsPage.php:356
 msgid "Enter an OpenAI-compatible relay URL + its key — use this for Claude, Gemini, or any proxy service."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: src/Admin/SettingsPage.php:319
+#: src/Admin/SettingsPage.php:407
 #, php-format
 msgid "reachable (HTTP %d)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:337
+#: src/Admin/SettingsPage.php:425
 msgid "Please choose a language to add."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:357
+#: src/Admin/SettingsPage.php:445
 msgid "Language added."
 msgstr ""
 
 #. translators: 1: core yes/no, 2: theme pack count, 3: plugin pack count.
-#: src/Admin/SettingsPage.php:370
+#: src/Admin/SettingsPage.php:458
 #, php-format
 msgid "Language packs installed — core: %1$s, themes: %2$d, plugins: %3$d. Remaining untranslated UI strings can be filled in under Strings."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:371
+#: src/Admin/SettingsPage.php:459
 msgid "yes"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:371
+#: src/Admin/SettingsPage.php:459
 msgid "no"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:396
-#: src/Routing/LanguageSwitcher.php:172
+#: src/Admin/SettingsPage.php:484
+#: src/Routing/LanguageSwitcher.php:189
 msgid "Languages"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:405
+#: src/Admin/SettingsPage.php:493
 msgid "Translatable content"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:406
+#: src/Admin/SettingsPage.php:494
 msgid "Choose which content types AumLang translates. Anything turned off stays in the original language."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:408
+#: src/Admin/SettingsPage.php:496
 msgid "Post types"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:424
+#: src/Admin/SettingsPage.php:512
 msgid "Taxonomies"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:440
+#: src/Admin/SettingsPage.php:528
 msgid "Custom fields"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:441
+#: src/Admin/SettingsPage.php:529
 msgid "ACF fields are translated automatically by type. For other raw custom fields (theme/plugin post meta), list the meta keys to translate here — one per line. Only add keys whose value is text."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:454
+#: src/Admin/SettingsPage.php:546
+msgid "Keys found on this site — click one to add it:"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:583
 msgid "Translation provider"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:457
+#: src/Admin/SettingsPage.php:586
+msgid "Translation engine"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:588
+msgid "WordPress AI Client (recommended)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:589
+msgid "Direct connection to an OpenAI-compatible API"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:594
+msgid "A provider is connected to this site under Settings > Connectors. With the WordPress AI Client, the connection is managed there once and shared by every plugin, so no key is needed below."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:596
+msgid "The WordPress AI Client needs WordPress 7.0 or newer with a provider connected under Settings > Connectors. The connectors that ship with WordPress cover Anthropic, Google and OpenAI; if your network cannot reach those, choose the direct connection and enter your own key below."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:604
 msgid "Provider"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:467
+#: src/Admin/SettingsPage.php:614
 msgid "API key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:469
+#: src/Admin/SettingsPage.php:616
 msgid "Saved — leave blank to keep"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:469
+#: src/Admin/SettingsPage.php:616
 msgid "Enter your API key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:472
+#: src/Admin/SettingsPage.php:619
 msgid "API endpoint (Base URL)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:477
+#: src/Admin/SettingsPage.php:624
 msgid "Model"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:483
+#: src/Admin/SettingsPage.php:630
 msgid "Pick a provider to auto-fill its endpoint and model, or choose Custom for a relay/proxy. Any OpenAI-compatible API works."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:484
+#: src/Admin/SettingsPage.php:631
 msgid "New to API keys? Where to get one"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:488
+#: src/Admin/SettingsPage.php:635
 msgid "An API key lets AumLang call an AI to translate. You pay the AI provider directly — AumLang never charges per translation. Steps: choose a provider below, create a key on its website, paste it into the API key box above, then click Test connection."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:494
+#: src/Admin/SettingsPage.php:641
 msgid "Get API key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:501
+#: src/Admin/SettingsPage.php:648
 msgid "Why do Claude / Gemini use the Custom option?"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:502
+#: src/Admin/SettingsPage.php:649
 msgid "Claude (Anthropic) and Gemini (Google) use a different API format than OpenAI, and AumLang's engine speaks the OpenAI-compatible format. To use them, pick Custom and enter a relay URL that exposes them in OpenAI format — many relay services and OpenRouter do exactly that."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:507
+#: src/Admin/SettingsPage.php:654
 msgid "Test connection"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:508
+#: src/Admin/SettingsPage.php:655
 msgid "Test reachability of all providers"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:512
+#: src/Admin/SettingsPage.php:659
 msgid "Before buying API credits, run \"Test reachability\" — a server (e.g. in mainland China) often cannot reach OpenAI but can reach DeepSeek. \"Test connection\" then verifies your key against the selected provider."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:513
+#: src/Admin/SettingsPage.php:660
 msgid "Your key is stored in your site database and used to call the provider directly."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:517
+#: src/Admin/SettingsPage.php:664
 msgid "General"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:523
+#: src/Admin/SettingsPage.php:670
 msgid "Add a language prefix to the default language (e.g. /en/)."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:530
+#: src/Admin/SettingsPage.php:677
 msgid "Delete all AumLang data when the plugin is deleted."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:535
-#: src/Admin/SwitcherPage.php:148
+#: src/Admin/SettingsPage.php:682
+#: src/Admin/SwitcherPage.php:150
 msgid "Save settings"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:549
+#: src/Admin/SettingsPage.php:696
 msgid "Saved."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:570
+#: src/Admin/SettingsPage.php:717
 msgid "No languages yet."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:584
+#: src/Admin/SettingsPage.php:731
 msgid "Default"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:586
+#: src/Admin/SettingsPage.php:733
 msgid "Make default"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:587
+#: src/Admin/SettingsPage.php:734
 msgid "Remove language"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:607
+#: src/Admin/SettingsPage.php:754
 msgid "All available languages have been added."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:614
+#: src/Admin/SettingsPage.php:761
 msgid "Add a language…"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:621
+#: src/Admin/SettingsPage.php:768
 msgid "Add"
 msgstr ""
 
@@ -630,55 +576,59 @@ msgstr ""
 msgid "Discovery mode"
 msgstr ""
 
-#: src/Admin/StringsPage.php:240
+#: src/Admin/StringsPage.php:243
+msgid "Unavailable on this WordPress. Collecting visible strings needs WordPress 6.9 or newer. You can still import strings from a .pot file below, and language packs are installed automatically."
+msgstr ""
+
+#: src/Admin/StringsPage.php:246
 msgid "On — browse your front end in a non-default language to collect the strings it actually displays, then turn it off."
 msgstr ""
 
-#: src/Admin/StringsPage.php:241
+#: src/Admin/StringsPage.php:247
 msgid "Off. Turn it on, browse your front end to collect visible strings, then turn it off."
 msgstr ""
 
 #. translators: %d: number of strings imported.
-#: src/Admin/StringsPage.php:259
+#: src/Admin/StringsPage.php:267
 #, php-format
 msgid "Imported %d strings from .pot files."
 msgstr ""
 
-#: src/Admin/StringsPage.php:267
+#: src/Admin/StringsPage.php:275
 msgid "Add a non-default language first."
 msgstr ""
 
-#: src/Admin/StringsPage.php:287
+#: src/Admin/StringsPage.php:295
 msgid "Search strings"
 msgstr ""
 
-#: src/Admin/StringsPage.php:288
+#: src/Admin/StringsPage.php:296
 msgid "Search"
 msgstr ""
 
 #. translators: %d: number of untranslated strings.
-#: src/Admin/StringsPage.php:296
+#: src/Admin/StringsPage.php:304
 #, php-format
 msgid "AI-translate all untranslated (%d)"
 msgstr ""
 
-#: src/Admin/StringsPage.php:304
+#: src/Admin/StringsPage.php:312
 msgid "Import all from .pot"
 msgstr ""
 
-#: src/Admin/StringsPage.php:331
+#: src/Admin/StringsPage.php:339
 msgid "Delete selected"
 msgstr ""
 
-#: src/Admin/StringsPage.php:339
+#: src/Admin/StringsPage.php:347
 msgid "Source"
 msgstr ""
 
-#: src/Admin/StringsPage.php:346
+#: src/Admin/StringsPage.php:354
 msgid "No strings yet — turn on discovery mode and browse the front end in this language to capture them, or import from .pot."
 msgstr ""
 
-#: src/Admin/StringsPage.php:357
+#: src/Admin/StringsPage.php:365
 msgid "Delete"
 msgstr ""
 
@@ -717,87 +667,96 @@ msgstr ""
 msgid "Name + code"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:107
-msgid "Add to menu location"
+#: src/Admin/SwitcherPage.php:104
+#: src/Routing/SwitcherWidget.php:79
+msgid "Flag only"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:105
+msgid "Flag + language name"
 msgstr ""
 
 #: src/Admin/SwitcherPage.php:109
+msgid "Add to menu location"
+msgstr ""
+
+#: src/Admin/SwitcherPage.php:111
 msgid "— None —"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:116
+#: src/Admin/SwitcherPage.php:118
 msgid "Menu parent label"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:117
+#: src/Admin/SwitcherPage.php:119
 msgid "Current language (e.g. 中文)"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:120
+#: src/Admin/SwitcherPage.php:122
 msgid "In a menu, AumLang adds one parent item with the languages as a dropdown submenu. Leave the label blank to use the current language as the parent (e.g. 中文 ▾), or type a fixed label like “Languages”."
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:122
+#: src/Admin/SwitcherPage.php:124
 msgid "Floating switcher"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:128
+#: src/Admin/SwitcherPage.php:130
 msgid "Show a floating switcher overlaid on every front-end page"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:131
+#: src/Admin/SwitcherPage.php:133
 msgid "Floating position"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:135
+#: src/Admin/SwitcherPage.php:137
 msgid "Top left"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:136
+#: src/Admin/SwitcherPage.php:138
 msgid "Top right"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:137
+#: src/Admin/SwitcherPage.php:139
 msgid "Bottom left"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:138
+#: src/Admin/SwitcherPage.php:140
 msgid "Bottom right"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:154
+#: src/Admin/SwitcherPage.php:156
 msgid "Place it manually"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:155
+#: src/Admin/SwitcherPage.php:157
 msgid "Prefer to place the switcher yourself (e.g. in an Elementor header, a sidebar, or a template)? Use any of these:"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:157
+#: src/Admin/SwitcherPage.php:159
 msgid "Shortcode"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:158
+#: src/Admin/SwitcherPage.php:160
 msgid "Shortcode (options)"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:159
+#: src/Admin/SwitcherPage.php:161
 msgid "Block"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:159
+#: src/Admin/SwitcherPage.php:161
 msgid "Search for “Language Switcher” in the block inserter."
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:160
+#: src/Admin/SwitcherPage.php:162
 msgid "Widget"
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:160
+#: src/Admin/SwitcherPage.php:162
 msgid "“AumLang Language Switcher” under Appearance → Widgets."
 msgstr ""
 
-#: src/Admin/SwitcherPage.php:161
+#: src/Admin/SwitcherPage.php:163
 msgid "Template tag"
 msgstr ""
 
@@ -864,9 +823,31 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
-#: src/Routing/SwitcherWidget.php:83
+#: src/Routing/SwitcherWidget.php:80
+msgid "Flag + name"
+msgstr ""
+
+#: src/Routing/SwitcherWidget.php:85
 msgid "Hide the current language"
 msgstr ""
+
+#. translators: %d: number of provider requests allowed for one translation run.
+#: src/Translation/BatchProcessor.php:215
+#, php-format
+msgid "Stopped after %d translation requests for this one page. This usually means the page contains a lot of text the model keeps returning unchanged — often a page builder's own markup. Translate the page in smaller pieces, or tell us which builder this site uses."
+msgstr ""
+
+#: src/Translation/Provider/CoreAiProvider.php:43
+msgid "WordPress AI Client"
+msgstr ""
+
+#. translators: %d: number of strings that were page-builder markup.
+#: src/Translation/TranslationOrchestrator.php:247
+#, php-format
+msgid "%d block of this page is layout markup, not text, so it was left as it is. If the page looks unchanged, it is probably built with a page builder this plugin does not read yet — tell us which one and we will add it."
+msgid_plural "%d blocks of this page are layout markup, not text, so they were left as they are. If the page looks unchanged, it is probably built with a page builder this plugin does not read yet — tell us which one and we will add it."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/assets/js/switcher-block.js:17
 msgid "Language Switcher"

@@ -418,6 +418,15 @@ class SettingsPage {
 	 * @return void
 	 */
 	private function add_language() {
+		/*
+		 * nonce 在调用方校验：第 98 行 `wp_verify_nonce( …, 'aumlang_add_language' )` 通过之后
+		 * 才会调到这个私有方法，表单那一侧在第 759 行 `wp_nonce_field( 'aumlang_add_language',
+		 * … )`。sniff 一次只看一个函数，所以跨不过这个边界 —— 它报的「没有 nonce 校验」
+		 * 在这个函数里成立，在这条调用链上不成立。
+		 *
+		 * 这条理由答的就是 sniff 问的那个问题（这次写入有没有被 CSRF 保护），不是别的问题。
+		 */
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce is verified by the caller (line 98) before this private method runs.
 		$code  = isset( $_POST['catalog_code'] ) ? sanitize_text_field( wp_unslash( $_POST['catalog_code'] ) ) : '';
 		$entry = LanguageCatalog::get( $code );
 

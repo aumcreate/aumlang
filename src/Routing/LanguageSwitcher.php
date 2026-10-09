@@ -249,6 +249,21 @@ class LanguageSwitcher {
 			true
 		);
 
+		/*
+		 * 🔴 没有这一行，这个区块面板在任何语言下都永远是英文，而且不报任何错。
+		 * PHP 的 `.mo` 只喂 PHP；浏览器里的 `__()` 只认
+		 * `wp_set_script_translations()` 喂进去的那份 JSON。少了它，
+		 * translate.wordpress.org 上的志愿者会把 switcher-block.js 里那 8 条
+		 * 认认真真翻完、`.po` 显示 100%，而译文一个字都到不了用户屏幕。
+		 *
+		 * **第三个参数（本地 languages 目录）故意不传。** 我们自己不发任何译文
+		 * （`languages/` 里只有 .pot），译文全部来自 .org 的语言包，那边会连这份
+		 * JSON 一起生成。传本地路径就等于多一个"源改了、产物没重新生成"的静默
+		 * 失败点，而我们并没有要生成的产物。
+		 *   —— 模板线 2026-10-05 报的；我核过：8 条文案与 aumlang.pot 逐条对得上。
+		 */
+		wp_set_script_translations( 'aumlang-switcher-block', 'aumlang' );
+
 		register_block_type(
 			'aumlang/language-switcher',
 			array(

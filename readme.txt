@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.18
+Stable tag: 1.0.19
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,13 @@ The plugin makes **no requests to any external service** to render a switcher: t
 from this plugin's own directory.
 
 == Changelog ==
+
+= 1.0.19 =
+* Fixed: the language switcher block's own panel — its name, its description and the Display options — stayed in English
+  whatever language the admin was in. Translators had already translated those strings and translate.wordpress.org showed
+  them as done; nothing was loading them in the browser.
+* Fixed: 18 strings added over the last few releases had never been collected for translation, so volunteers could not see
+  them at all. The translation template is rebuilt from the current code.
 
 = 1.0.18 =
 * The custom fields box now lists the meta keys this site actually uses, with how often each one appears. Carrying a theme's own setting — a "hide the title" checkbox, a page template — across to a translation no longer means guessing its internal name.

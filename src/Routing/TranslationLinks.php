@@ -102,7 +102,21 @@ class TranslationLinks {
 	 * @return bool
 	 */
 	private function is_elementor_preview() {
-		return isset( $_GET['elementor-preview'] ) && '' !== (string) wp_unslash( $_GET['elementor-preview'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing check.
+		/*
+		 * 🔴 这一行原来挂的 ignore 压的是 `NonceVerification.Recommended`，理由写「read-only
+		 * routing check」—— 理由是真的，但**答的是另一个问题**：在完整 WordPress 规则集下
+		 * 这一行真正报的是 `ValidatedSanitizedInput.InputNotSanitized`（error），那条 ignore
+		 * 压不到它。aumnexcart 2026-10 被退回就是这个形状：一个为真、却答错问题的 ignore
+		 * 把一条发现挡在我们自己眼前。
+		 *
+		 * 改法是让它不必被豁免：先 sanitize_text_field() 再比较。这里只做存在性判断，
+		 * 值既不输出也不进查询，所以净化不改变语义；而 nonce 那条豁免仍然需要 —— 这是
+		 * 前台 GET 上的只读路由判断，本来就没有 nonce。
+		 */
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing check on a front-end GET; nothing here changes state.
+		$flag = isset( $_GET['elementor-preview'] ) ? sanitize_text_field( wp_unslash( $_GET['elementor-preview'] ) ) : '';
+
+		return '' !== $flag;
 	}
 
 	/**
