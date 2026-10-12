@@ -5,6 +5,16 @@ readme.txt carries the most recent entries; wordpress.org truncates that section
 5000 characters, which had been silently cutting most of this history off for buyers.
 Everything older lives here.
 
+= 1.4.3 =
+* Fixed: a page that had already been translated kept showing as translated even when the plugin had
+  since become able to read more of it. Updating the plugin does not re-translate anything by itself —
+  that would spend your credit without asking — but nothing said there was anything left to do, so a
+  page could sit with hundreds of untranslated pieces while the screen said it was done. The editor and
+  the page list now say "Incomplete", give the number of pieces that have never been translated, and
+  offer "Translate the rest". The notice works itself out: it is counted from what is actually stored,
+  so it appears whenever the plugin learns to see more, and disappears once the rest is translated.
+
+Older entries are in changelog.txt, which ships with the plugin.
 = 1.4.2 =
 * Fixed: tables and other content that a page builder stores encoded inside a shortcode attribute were
   never translated. Some builders keep a block of raw HTML as one long encoded attribute value; from the

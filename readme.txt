@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -107,6 +107,23 @@ from this plugin's own directory.
 
 == Changelog ==
 
+= 1.7.0 =
+* **Translate many posts at once.** Select rows in the Posts or Pages list, pick a language from the
+  bulk actions menu, and AumLang works through them in the background. Until now the only way to
+  translate was the button in the editor: one post, one language, one click. A site with twenty pages
+  and five languages is a hundred clicks across twenty page loads, each waiting for the rounds to
+  finish — not a slow workflow but an impossible one, and sites were sitting at a handful of
+  combinations done while their owners reported the result as a fault in the translation.
+* Because this spends money, Apply does not start anything. It opens a screen saying how many posts
+  will actually be sent, how many already have a translation and will be left alone, and into which
+  language. That screen has the button. The counts are worked out as the screen is drawn, never
+  reused from a moment ago.
+* A post that already has a translation is skipped rather than translated again, including one whose
+  translation is out of date. Re-translating a single post stays where it was, on the button in the
+  editor that says what it will do before it does it.
+* The run survives the page being closed: it continues in the background and the progress screen
+  picks it up again. **Stop** finishes the post it is on and then stops; posts already done stay done.
+
 = 1.6.0 =
 * **A header or footer built as a page is now translated.** Builder-driven themes keep the header,
   the footer and other global blocks in an ordinary page and render it inside every request with
@@ -148,14 +165,5 @@ from this plugin's own directory.
   not guaranteed, and the check added in 1.4.2 for content stored inside shortcode attributes
   called it on every long attribute value, so any page with one hit the error. Nothing in the
   plugin needs mbstring any more.
-
-= 1.4.3 =
-* Fixed: a page that had already been translated kept showing as translated even when the plugin had
-  since become able to read more of it. Updating the plugin does not re-translate anything by itself —
-  that would spend your credit without asking — but nothing said there was anything left to do, so a
-  page could sit with hundreds of untranslated pieces while the screen said it was done. The editor and
-  the page list now say "Incomplete", give the number of pieces that have never been translated, and
-  offer "Translate the rest". The notice works itself out: it is counted from what is actually stored,
-  so it appears whenever the plugin learns to see more, and disappears once the rest is translated.
 
 Older entries are in changelog.txt, which ships with the plugin.

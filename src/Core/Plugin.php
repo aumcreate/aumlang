@@ -38,6 +38,7 @@ use AumLang\Language\LanguagePackInstaller;
 use AumLang\Language\LanguageRegistry;
 use AumLang\Language\LanguageRepository;
 use AumLang\Routing\ContentLinkRewriter;
+use AumLang\Admin\BulkTranslate;
 use AumLang\Content\ForeignContent;
 use AumLang\Routing\QueryFilter;
 use AumLang\Routing\RewriteRules;
@@ -49,6 +50,8 @@ use AumLang\Seo\SitemapManager;
 use AumLang\Strings\PotImporter;
 use AumLang\Strings\DataStringFiller;
 use AumLang\Strings\DataStrings;
+use AumLang\Translation\BulkQueue;
+use AumLang\Translation\BulkRunner;
 use AumLang\Strings\StringRepository;
 use AumLang\Strings\StringTranslator;
 use AumLang\Sync\OverrideStore;
@@ -294,6 +297,37 @@ class Plugin {
 			'query_filter',
 			static function ( Container $c ) {
 				return new QueryFilter( $c->get( 'router' ), $c->get( 'content_linker' ) );
+			}
+		);
+
+		$this->container->set(
+			'bulk_queue',
+			static function () {
+				return new BulkQueue();
+			}
+		);
+
+		$this->container->set(
+			'bulk_runner',
+			static function ( Container $c ) {
+				return new BulkRunner(
+					$c->get( 'bulk_queue' ),
+					$c->get( 'translation_orchestrator' ),
+					$c->get( 'content_linker' ),
+					$c->get( 'language_registry' )
+				);
+			}
+		);
+
+		$this->container->set(
+			'bulk_translate',
+			static function ( Container $c ) {
+				return new BulkTranslate(
+					$c->get( 'language_registry' ),
+					$c->get( 'translatable_types' ),
+					$c->get( 'bulk_queue' ),
+					$c->get( 'bulk_runner' )
+				);
 			}
 		);
 
@@ -711,6 +745,13 @@ class Plugin {
 		 * 那段内容不走主查询，所以 QueryFilter 换不到它。见 ForeignContent 的说明。
 		 */
 		$this->container->get( 'foreign_content' )->register();
+
+		/*
+		 * 批量翻译。20 个页面 × 5 种语言 = 100 次点击，编辑器里那个按钮一次只能做一个 —— 
+		 * 这不是慢，是做不完。真实买家卡在 4/100，然后把结果当成 bug 报过来。
+		 */
+		$this->container->get( 'bulk_runner' )->register();
+		$this->container->get( 'bulk_translate' )->register();
 		$this->container->get( 'data_string_filler' )->register();
 		$this->container->get( 'translatable_types' )->register();
 		$this->container->get( 'prompt_builder' )->register();
