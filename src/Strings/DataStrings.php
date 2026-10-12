@@ -53,6 +53,16 @@ class DataStrings {
 	const CTX_WIDGET = 'aumlang-widget';
 
 	/**
+	 * Keys whose values are machinery, not prose — never translated, never collected.
+	 *
+	 * 这些名字是 WordPress / HTML / CSS 的通用词汇，不是哪一个主题或插件的私有约定；
+	 * 所以这张表对任何人写的小工具都成立。
+	 *
+	 * @var string
+	 */
+	const SKIP_KEY = '/(^|_)(url|uri|link|href|target|rel|id|ids|slug|key|type|class|classes|style|css|icon|color|colour|bg|background|image|img|src|srcset|media|attachment|thumb|thumbnail|size|width|height|align|alignment|position|order|orderby|sortby|number|count|limit|offset|taxonomy|term|terms|cat|category|tag|tags|post_type|nav_menu|menu|format|date_format|time_format|lang|locale|email|mail|phone|tel|version|mode|layout|template|anchor|shortcode|embed|script|html_id|wrapper|container)(_|$)/i';
+
+	/**
 	 * Router.
 	 *
 	 * @var Router
@@ -107,6 +117,20 @@ class DataStrings {
 		add_filter( 'widget_title', array( $this, 'translate_string' ), 10, 1 );
 
 		/*
+		 * 🔴 `widget_title` 只在小工具**自己调用**它时才触发，而那是约定，不是规则。
+		 *
+		 * 核心的小工具都调用；第三方的常常不调用 —— 它们直接 `echo $instance['title']`。
+		 * 对那些小工具我们是全瞎的：标题停在源语言，而我们这边没有任何迹象说明漏了。
+		 * 2026-10-12 实测一位买家的页头联系栏（第三方小工具，三个实例）：
+		 * `title` 字段原封不动是英文，站长在我们界面里也找不到这几句。
+		 *
+		 * `widget_display_callback` 不一样 —— **WordPress 自己**在渲染每一个小工具之前触发它，
+		 * 并把整个 $instance 交过来。不需要知道是谁写的小工具，也不需要它配合。
+		 * 这里走的是和 option 相同的那条深走逻辑：只换字符串叶子，结构原样保留。
+		 */
+		add_filter( 'widget_display_callback', array( $this, 'translate_widget_instance' ), 10, 1 );
+
+		/*
 		 * 🔴 只给**声明过的**键各挂一个过滤器，不去拦所有 option 读取。
 		 *
 		 * 拦全部等于插到每一次 get_option 上，那是整站范围的性能和兼容风险；
@@ -159,6 +183,22 @@ class DataStrings {
 	}
 
 	/**
+	 * Swap the text fields of any widget, whatever wrote it.
+	 *
+	 * 返回 false 会让 WordPress 整个不渲染这个小工具，所以任何意外都必须原样返回 $instance。
+	 *
+	 * @param mixed $instance Widget settings.
+	 * @return mixed
+	 */
+	public function translate_widget_instance( $instance ) {
+		if ( ! is_array( $instance ) ) {
+			return $instance;
+		}
+
+		return $this->translate_deep( $instance, 0, self::CTX_WIDGET );
+	}
+
+	/**
 	 * Swap a declared option value, walking into arrays.
 	 *
 	 * @param mixed  $value  Option value.
@@ -180,18 +220,30 @@ class DataStrings {
 	 * @param int   $depth Current depth.
 	 * @return mixed
 	 */
-	private function translate_deep( $value, $depth = 0 ) {
+	private function translate_deep( $value, $depth = 0, $context = self::CTX_OPTION ) {
 		if ( $depth > 6 ) {
 			return $value;
 		}
 
 		if ( is_string( $value ) ) {
-			return '' === trim( $value ) ? $value : $this->lookup( self::CTX_OPTION, $value );
+			return '' === trim( $value ) ? $value : $this->lookup( $context, $value );
 		}
 
 		if ( is_array( $value ) ) {
 			foreach ( $value as $k => $v ) {
-				$value[ $k ] = $this->translate_deep( $v, $depth + 1 );
+				/*
+				 * 🔴 按键跳过，在查表之前。
+				 *
+				 * 这些键装的是 URL、ID、图标名、CSS 类 —— 把它们换成译文会**弄坏小工具**，
+				 * 而且坏法是沉默的：链接指向不存在的地址，图标变成空白。
+				 * worth_translating() 在采集那一端已经挡掉大部分，但那一关是按「值长什么样」判断的，
+				 * 而 `icon = "mail"` 这种值看上去和一个普通单词没有区别。键名是更硬的证据。
+				 */
+				if ( is_string( $k ) && preg_match( self::SKIP_KEY, $k ) ) {
+					continue;
+				}
+
+				$value[ $k ] = $this->translate_deep( $v, $depth + 1, $context );
 			}
 		}
 
@@ -329,37 +381,90 @@ class DataStrings {
 		$out = array();
 
 		/*
-		 * 🔴 只收**标题**，不收正文。
+		 * 🔴 以前这里写死了八个**核心**小工具的 option 名，而且只取 `title`。
 		 *
-		 * 小工具的正文是 HTML 或区块标记（`<!-- wp:group -->…`）。整段送出去
-		 * 等于把骨架交给模型 —— 这正是 1.0.17 之前把页面构建器标记当正文翻、
-		 * 结果触发回声重试和递归拆分的那条爆炸路径。
+		 * 两个口子都漏：第三方小工具的 option 名我们猜不到（它由小工具类的 id_base 决定，
+		 * 等于「任何字符串」），而正文字段里装着按钮文案、副标题、短说明这些读者天天看见的字。
+		 * 2026-10-12 实测一位买家的页头：三个第三方小工具的 `title` 和一个按钮的 `text`
+		 * 全部停在源语言，而且**在我们的字符串列表里根本不出现** —— 站长连「漏了」都看不到。
 		 *
-		 * 要做对得按块拆、再按块回填，走 HtmlTextExtractor 那一套，而回填又要
-		 * 写回 option 里的正确位置。那是另一件事，不塞进这一版。
-		 * 标题是纯文本，现在就能做对，而它恰好是侧栏上最显眼的那行字。
+		 * 所以改成扫 `widget_` 开头的全部 option。这不是放宽标准，是把判断从
+		 * 「这个 option 名我认不认识」换成「这个值像不像读者看的文字」：
+		 *   · SKIP_KEY 按键名挡掉 url / icon / class 这类机器用的字段
+		 *   · worth_translating() 按值的样子挡掉颜色、ID、序列化数据、带标签的 HTML
+		 * 原来那条「不收正文」的顾虑由后者兜着 —— 带 `<tag` 的一律落选，
+		 * 所以页面构建器的骨架仍然走抽取器那条路，不会整段送去翻。
 		 */
-		foreach ( array( 'widget_text', 'widget_custom_html', 'widget_media_image', 'widget_nav_menu', 'widget_archives', 'widget_categories', 'widget_recent-posts', 'widget_search' ) as $option ) {
+		foreach ( $this->widget_option_names() as $option ) {
 			$instances = get_option( $option, array() );
 
 			if ( ! is_array( $instances ) ) {
 				continue;
 			}
 
-			foreach ( $instances as $instance ) {
-				if ( ! is_array( $instance ) || ! isset( $instance['title'] ) ) {
-					continue;
-				}
-
-				$text = trim( (string) $instance['title'] );
-
-				if ( '' !== $text && $this->worth_translating( $text ) ) {
+			foreach ( $this->flatten_widget_fields( $instances ) as $text ) {
+				if ( $this->worth_translating( $text ) ) {
 					$out[ $text ] = true;
 				}
 			}
 		}
 
 		return array_keys( $out );
+	}
+
+	/**
+	 * Every option name that holds widget instances.
+	 *
+	 * WordPress 没有「列出所有小工具 option」的 API，但它们的名字有硬规则：
+	 * `WP_Widget` 把实例存在 `widget_{$id_base}` 里。所以按前缀查 option 表是
+	 * 对这条规则的直接查询，不是启发式猜测。
+	 *
+	 * @return string[]
+	 */
+	private function widget_option_names() {
+		global $wpdb;
+
+		$like = $wpdb->esc_like( 'widget_' ) . '%';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- 没有列出 option 名的 API；每次采集跑一次。
+		$names = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
+
+		return array_map( 'strval', (array) $names );
+	}
+
+	/**
+	 * Text leaves of a widget option, with the machinery keys left out.
+	 *
+	 * @param mixed $value Value.
+	 * @param int   $depth Current depth.
+	 * @return string[]
+	 */
+	private function flatten_widget_fields( $value, $depth = 0 ) {
+		if ( $depth > 6 ) {
+			return array();
+		}
+
+		if ( is_string( $value ) ) {
+			return '' === trim( $value ) ? array() : array( trim( $value ) );
+		}
+
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$out = array();
+
+		foreach ( $value as $k => $v ) {
+			if ( is_string( $k ) && preg_match( self::SKIP_KEY, $k ) ) {
+				continue;
+			}
+
+			foreach ( $this->flatten_widget_fields( $v, $depth + 1 ) as $leaf ) {
+				$out[] = $leaf;
+			}
+		}
+
+		return $out;
 	}
 
 	/**
@@ -421,6 +526,14 @@ class DataStrings {
 		}
 
 		if ( preg_match( '#^(?:https?://|//|/|\#|[a-z]+://)#i', $text ) ) {
+			return false;
+		}
+
+		/*
+		 * 邮箱和电话。SKIP_KEY 挡的是叫 email/phone 的字段，但这两样常常装在叫 text 的
+		 * 字段里（「联系我们」那种小工具就是这么存的）。翻译它们等于把联系方式改错。
+		 */
+		if ( is_email( $text ) || preg_match( '/^[\+\(]?[\d][\d\s\-\(\)\.]{6,}$/', $text ) ) {
 			return false;
 		}
 

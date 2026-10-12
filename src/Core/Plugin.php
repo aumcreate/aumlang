@@ -10,6 +10,7 @@ namespace AumLang\Core;
 defined( 'ABSPATH' ) || exit;
 
 use AumLang\Admin\AdminColumns;
+use AumLang\Admin\ManualLink;
 use AumLang\Admin\AdminMenu;
 use AumLang\Admin\MetaBox;
 use AumLang\Admin\ReviewPage;
@@ -37,6 +38,7 @@ use AumLang\Language\LanguagePackInstaller;
 use AumLang\Language\LanguageRegistry;
 use AumLang\Language\LanguageRepository;
 use AumLang\Routing\ContentLinkRewriter;
+use AumLang\Content\ForeignContent;
 use AumLang\Routing\QueryFilter;
 use AumLang\Routing\RewriteRules;
 use AumLang\Seo\CanonicalManager;
@@ -275,6 +277,13 @@ class Plugin {
 		);
 
 		$this->container->set(
+			'manual_link',
+			static function () {
+				return new ManualLink();
+			}
+		);
+
+		$this->container->set(
 			'admin_columns',
 			static function ( Container $c ) {
 				return new AdminColumns( $c->get( 'language_registry' ), $c->get( 'content_linker' ), $c->get( 'coverage_gap' ) );
@@ -285,6 +294,17 @@ class Plugin {
 			'query_filter',
 			static function ( Container $c ) {
 				return new QueryFilter( $c->get( 'router' ), $c->get( 'content_linker' ) );
+			}
+		);
+
+		$this->container->set(
+			'foreign_content',
+			static function ( Container $c ) {
+				return new ForeignContent(
+					$c->get( 'router' ),
+					$c->get( 'content_linker' ),
+					$c->get( 'translation_repository' )
+				);
 			}
 		);
 
@@ -685,6 +705,12 @@ class Plugin {
 		 * 它们不走 gettext，所以上面那个管道看不见它们。见 DataStrings 的说明。
 		 */
 		$this->container->get( 'data_strings' )->register();
+
+		/*
+		 * 主题把另一个页面的内容渲染进当前页（页头、页脚、全局区块）时，
+		 * 那段内容不走主查询，所以 QueryFilter 换不到它。见 ForeignContent 的说明。
+		 */
+		$this->container->get( 'foreign_content' )->register();
 		$this->container->get( 'data_string_filler' )->register();
 		$this->container->get( 'translatable_types' )->register();
 		$this->container->get( 'prompt_builder' )->register();
@@ -699,6 +725,7 @@ class Plugin {
 			$this->container->get( 'meta_box' )->register();
 			$this->container->get( 'admin_columns' )->register();
 			$this->container->get( 'strings_page' )->register();
+			$this->container->get( 'manual_link' )->register();
 			$this->container->get( 'glossary_page' )->register();
 			$this->container->get( 'diagnostics_page' )->register();
 			$this->container->get( 'review_page' )->register();

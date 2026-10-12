@@ -51,15 +51,69 @@ defined( 'ABSPATH' ) || exit;
 class Flags {
 
 	/**
+	 * Languages whose WordPress locale carries no region, and the one country they belong to.
+	 *
+	 * 🔴 2026-10-12: the note above says this needs "no table of exceptions". That was wrong, and a
+	 * real site showed it: Japanese sat in the switcher with no flag beside English 🇺🇸 and
+	 * Português 🇧🇷. WordPress's locale for Japanese is literally `ja` — no `_JP` — so
+	 * `country()` returned '' and the flag was dropped. **27 of the 69 languages in our own catalog
+	 * are in that state**, not just Japanese: vi, th, uk, fi, el, hr, et, lv, ga, km, lo, hy, az, kk,
+	 * af, am, fil, te, mr, gu, ur, sq.
+	 *
+	 * The original argument still holds for the case it was about: `en` is 🇬🇧 or 🇺🇸 and there is
+	 * no right answer, so `en` is deliberately **not** here. But "`en` is ambiguous" does not make
+	 * `ja` ambiguous. A table is only guessing where the language really is spoken in several
+	 * countries; where it is not, the mapping is a fact.
+	 *
+	 * Left out on purpose, because they genuinely have no single country — these keep returning ''
+	 * and the switcher falls back to the language's name, which is the existing behaviour:
+	 *   en (GB/US…) · ar (22 countries) · sw (KE/TZ/UG) · ca (ES/AD) · eu (ES/FR)
+	 *
+	 * te/mr/gu all map to IN on purpose. Three languages, one flag — see the note at the top of this
+	 * class about a flag not being a language; the name is always what gets announced.
+	 *
+	 * @var array<string, string>
+	 */
+	const LANG_COUNTRY = array(
+		'ja'  => 'JP',
+		'vi'  => 'VN',
+		'th'  => 'TH',
+		'uk'  => 'UA',
+		'fi'  => 'FI',
+		'el'  => 'GR',
+		'hr'  => 'HR',
+		'sq'  => 'AL',
+		'et'  => 'EE',
+		'lv'  => 'LV',
+		'ga'  => 'IE',
+		'te'  => 'IN',
+		'mr'  => 'IN',
+		'gu'  => 'IN',
+		'km'  => 'KH',
+		'lo'  => 'LA',
+		'fil' => 'PH',
+		'hy'  => 'AM',
+		'az'  => 'AZ',
+		'kk'  => 'KZ',
+		'af'  => 'ZA',
+		'am'  => 'ET',
+		'ur'  => 'PK',
+	);
+
+	/**
 	 * The ISO 3166-1 alpha-2 country in a locale, or '' when there is none.
 	 *
-	 * @param string $locale e.g. `zh_CN`, `pt-BR`, `en`.
+	 * The region in the locale wins whenever there is one, so a site that registers `ja_JP`, or a
+	 * language the table does not know, behaves exactly as before. The table is consulted only for a
+	 * locale that carries no region at all.
+	 *
+	 * @param string $locale e.g. `zh_CN`, `pt-BR`, `ja`.
 	 * @return string Upper-case two-letter country code.
 	 */
 	public static function country( $locale ) {
 		$locale = str_replace( '-', '_', trim( (string) $locale ) );
 
-		if ( '' === $locale || false === strpos( $locale, '_' ) ) {
+		if ( '' === $locale ) {
 			return '';
 		}
 
@@ -72,7 +126,9 @@ class Flags {
 			}
 		}
 
-		return '';
+		$lang = strtolower( $parts[0] );
+
+		return isset( self::LANG_COUNTRY[ $lang ] ) ? self::LANG_COUNTRY[ $lang ] : '';
 	}
 
 	/**
