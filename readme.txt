@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -107,6 +107,14 @@ from this plugin's own directory.
 
 == Changelog ==
 
+= 1.7.1 =
+* **Bulk translation offered to translate posts that were themselves translations.** The posts list
+  shows translations alongside their originals, so a site with three languages has four times the
+  rows — and "select all" selects what is on the screen. There is no way for the owner to tell which
+  rows are copies, so the Japanese copies of three posts were counted as "will be translated into
+  Japanese": money spent to produce a Japanese translation of a Japanese page, overwriting what was
+  there. Those are now left alone, and the confirmation screen says why.
+
 = 1.7.0 =
 * **Translate many posts at once.** Select rows in the Posts or Pages list, pick a language from the
   bulk actions menu, and AumLang works through them in the background. Until now the only way to
@@ -157,13 +165,5 @@ from this plugin's own directory.
   those settings as translatable.
 * These are filled in while you translate a page, so there is nothing extra to click. They are
   translated once and remembered, and re-translated if you change them.
-
-= 1.4.4 =
-* Fixed: on servers without PHP's mbstring extension, translating failed outright with
-  "Call to undefined function mb_check_encoding". This affected 1.4.2 and 1.4.3 and stopped
-  translation completely on those servers — please update. mbstring is very common but it is
-  not guaranteed, and the check added in 1.4.2 for content stored inside shortcode attributes
-  called it on every long attribute value, so any page with one hit the error. Nothing in the
-  plugin needs mbstring any more.
 
 Older entries are in changelog.txt, which ships with the plugin.

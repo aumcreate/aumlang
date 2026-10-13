@@ -132,6 +132,23 @@ class BulkRunner {
 			return array( 'state' => 'running', 'message' => '' );
 		}
 
+		/*
+		 * 🔴 这篇本身就是一篇译文吗？
+		 *
+		 * 文章列表里**译文和原文混在一起**：一个站翻了三种语言，列表里就有四倍的行。
+		 * 站长「全选」的时候选中的是**屏幕上所有的行**，他没有、也不该有办法分辨哪几行
+		 * 是副本。2026-10-12 实测出图站：9 篇文章里 4 篇是译文，而 1.7.0 把其中三篇
+		 * **日文文章算进了「要翻译成日文」** —— 花买家的钱做一件无意义的事，
+		 * 而且产出会是一篇日译日的文章覆盖掉原来的。
+		 *
+		 * `get_source_id()` 对译文返回它的源，对原文返回它自己 —— 两者不等即为译文。
+		 */
+		if ( (int) $this->linker->get_source_id( $post_id ) !== $post_id ) {
+			$this->queue->advance( 'skipped', __( 'This is itself a translation — left untouched.', 'aumlang' ) );
+
+			return array( 'state' => 'running', 'message' => '' );
+		}
+
 		$existing = (int) $this->linker->get_translation( $post_id, $lang );
 
 		if ( $existing && $existing !== $post_id ) {
@@ -232,6 +249,13 @@ class BulkRunner {
 			$id = (int) $id;
 
 			if ( $id <= 0 ) {
+				continue;
+			}
+
+			/* 和 run_round() 同一条规则 —— 否则确认屏印的数字和实际会做的事对不上，
+			   而那个数字正是站主据以同意花钱的东西。 */
+			if ( (int) $this->linker->get_source_id( $id ) !== $id ) {
+				++$skip;
 				continue;
 			}
 

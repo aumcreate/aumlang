@@ -2,9 +2,17 @@ AumLang — full changelog
 ========================
 
 readme.txt carries the most recent entries; wordpress.org truncates that section at
-5000 characters, which had been silently cutting most of this history off for buyers.
-Everything older lives here.
+5000 characters. Everything older lives here.
 
+= 1.4.4 =
+* Fixed: on servers without PHP's mbstring extension, translating failed outright with
+  "Call to undefined function mb_check_encoding". This affected 1.4.2 and 1.4.3 and stopped
+  translation completely on those servers — please update. mbstring is very common but it is
+  not guaranteed, and the check added in 1.4.2 for content stored inside shortcode attributes
+  called it on every long attribute value, so any page with one hit the error. Nothing in the
+  plugin needs mbstring any more.
+
+Older entries are in changelog.txt, which ships with the plugin.
 = 1.4.3 =
 * Fixed: a page that had already been translated kept showing as translated even when the plugin had
   since become able to read more of it. Updating the plugin does not re-translate anything by itself —

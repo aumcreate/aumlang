@@ -275,9 +275,16 @@ class BulkTranslate {
 		) ) . '</p>';
 
 		if ( $estimate['skip'] > 0 ) {
+			/*
+			 * 🔴 「已有译文」不足以描述被跳过的那些。
+			 *
+			 * 列表里译文和原文混在一起，所以被跳过的有两类：已经翻过的原文，
+			 * 以及**本身就是译文的副本**。只说前者，站主看到数字对不上会以为是算错了 ——
+			 * 而真正的原因（他全选时把副本也选进来了）他看不见。
+			 */
 			echo '<p>' . esc_html( sprintf(
 				/* translators: %d: number of posts. */
-				_n( '%d already has a translation and will be left alone.', '%d already have a translation and will be left alone.', $estimate['skip'], 'aumlang' ),
+				_n( '%d is left alone — it already has a translation, or is itself a translation.', '%d are left alone — they already have a translation, or are themselves translations.', $estimate['skip'], 'aumlang' ),
 				$estimate['skip']
 			) ) . '</p>';
 		}
