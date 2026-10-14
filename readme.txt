@@ -4,7 +4,7 @@ Tags: hreflang, ai translation, woocommerce, elementor, language switcher
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -107,6 +107,19 @@ from this plugin's own directory.
 
 == Changelog ==
 
+= 1.7.2 =
+* **A translation written in the wrong alphabet is no longer accepted.** Nothing checked that what
+  came back was in the language that was asked for. A provider that answers an Italian request with
+  Chinese returns the right number of items, in valid JSON, with no error anywhere — so it was stored
+  as the Italian translation, and retrying produced the same thing because the stored value already
+  looked finished. Replies are now checked against the writing systems the target language actually
+  uses, and one in the wrong script is treated as a failed attempt: the retry runs, and if that fails
+  too the original text is kept. English left in place is a problem you can see; Chinese presented as
+  Italian is one you cannot.
+* The check only judges what can be judged with certainty — a script the language never uses. It does
+  not try to tell Spanish from Portuguese, and it never rejects a reply for a language it does not
+  know: not knowing is not evidence of an error.
+
 = 1.7.1 =
 * **Bulk translation offered to translate posts that were themselves translations.** The posts list
   shows translations alongside their originals, so a site with three languages has four times the
@@ -155,15 +168,5 @@ from this plugin's own directory.
 * The plugins list now carries a **Guide** link beside Deactivate, pointing at this plugin's
   manual in the language that administrator reads the admin in. The manual is the product's
   full documentation; it is a separate thing from the plugin's own help text.
-
-= 1.5.0 =
-* **Menu labels you typed yourself are now translated.** A menu item shows the page title unless you
-  type your own label, and only the first kind was being translated — so a menu could come out mostly
-  in the original language while every link correctly pointed at the translated page. On one site that
-  was 39 of 47 items. The labels you type are now translated like any other text, and so are the
-  titles of sidebar widgets and the text a theme stores in its own settings when the theme declares
-  those settings as translatable.
-* These are filled in while you translate a page, so there is nothing extra to click. They are
-  translated once and remembered, and re-translated if you change them.
 
 Older entries are in changelog.txt, which ships with the plugin.

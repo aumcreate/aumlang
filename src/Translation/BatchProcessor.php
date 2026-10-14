@@ -538,6 +538,35 @@ class BatchProcessor {
 					throw new \RuntimeException( 'Provider returned the input unchanged.' );
 				}
 
+				/*
+				 * 🔴 **回来的东西是不是目标语言。**
+				 *
+				 * 2026-10-13 买家的站：英文翻意大利语，回来的是日语和中文，而且重试一样。
+				 * 他的诊断报告抓了个现行 —— 这是一次真实应答，请求的是意大利语：
+				 *
+				 *     {"content":"[\"プロトタイプPCBアセンブリサービス | 高速・高品質…\"]"}
+				 *
+				 * **条数对、JSON 能解析、什么都没抛**，于是它被当成意大利语译文存了下来。
+				 * 访客读到一个意大利语页面配日语标题，而站主**重试也出不来** ——
+				 * 存着的那个值在系统看来就是一份完成了的译文。
+				 *
+				 * 这和上面那条「模型把输入抄回来」是同一族：**服务商自己的检查（条数、
+				 * JSON 形状）在一个错误答案上全部通过。** 区别只是那条有人防过，这条一道都没有。
+				 *
+				 * 按失败的那一次处理 —— 走现有的重试；重试还是错语言，异常往上抛，
+				 * 调用方保留原文。**宁可留着英文，也不要存一段日语当意大利语。**
+				 */
+				$wrong = LanguageGuard::wrong_items( (array) $result, $target_lang );
+
+				if ( $wrong ) {
+					throw new \RuntimeException( sprintf(
+						'Provider answered in the wrong script for %s (%d of %d items).',
+						$target_lang,
+						count( $wrong ),
+						count( (array) $result )
+					) );
+				}
+
 				return $result;
 			} catch ( DeadlineReached $e ) {
 				/* 自己喊的停，原样往上抛 —— 不能被下面的「失败就拆开重来」吃掉。 */
